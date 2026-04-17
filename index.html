@@ -1533,22 +1533,114 @@ function doBackup() {
 $('btn-backup-now').addEventListener('click', doBackup);
 $('btn-backup-dismiss').addEventListener('click', () => { $('backup-banner').style.display = 'none'; });
 
+// ========== PRICE FETCHING (Binance + CoinGecko fallback) ==========
+let coingeckoIdCache = {}; // symbol (e.g. "DEFI") -> coingecko id (e.g. "de-fi")
+
+async function fetchBinancePrices(symbols) {
+  // Try batch first (single request, fastest)
+  try {
+    const query = encodeURIComponent(JSON.stringify(symbols));
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + query);
+    if (res.ok) {
+      const arr = await res.json();
+      if (Array.isArray(arr)) {
+        const prices = {};
+        for (const item of arr) prices[item.symbol] = parseFloat(item.price);
+        return { prices, failed: [] };
+      }
+    }
+    // Batch failed (likely because one symbol is invalid) — fall through to individual
+  } catch (e) { /* network error, try individual */ }
+
+  // Fall back to individual requests in parallel
+  const prices = {};
+  const failed = [];
+  await Promise.all(symbols.map(async sym => {
+    try {
+      const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=' + sym);
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.price) { prices[sym] = parseFloat(d.price); return; }
+      }
+      failed.push(sym);
+    } catch (e) { failed.push(sym); }
+  }));
+  return { prices, failed };
+}
+
+async function searchCoinGeckoId(symbol) {
+  if (coingeckoIdCache[symbol]) return coingeckoIdCache[symbol];
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(symbol));
+    if (!res.ok) return null;
+    const data = await res.json();
+    const matches = (data.coins || []).filter(c => c.symbol && c.symbol.toUpperCase() === symbol.toUpperCase());
+    if (matches.length === 0) return null;
+    // Pick the one with highest market cap (lowest rank number)
+    matches.sort((a, b) => (a.market_cap_rank == null ? 1e9 : a.market_cap_rank) - (b.market_cap_rank == null ? 1e9 : b.market_cap_rank));
+    coingeckoIdCache[symbol] = matches[0].id;
+    return matches[0].id;
+  } catch (e) { return null; }
+}
+
+async function fetchCoinGeckoPrices(bases) {
+  // bases = ['DEFI', 'XRP', ...]
+  const idToBase = {};
+  await Promise.all(bases.map(async b => {
+    const id = await searchCoinGeckoId(b);
+    if (id) idToBase[id] = b;
+  }));
+  const ids = Object.keys(idToBase);
+  if (ids.length === 0) return {};
+  try {
+    const url = 'https://api.coingecko.com/api/v3/simple/price?ids=' + ids.join(',') + '&vs_currencies=usd';
+    const res = await fetch(url);
+    if (!res.ok) return {};
+    const data = await res.json();
+    const prices = {};
+    for (const id of Object.keys(data)) {
+      const base = idToBase[id];
+      const p = data[id] && data[id].usd;
+      if (base && p != null) prices[base + 'USDT'] = p; // key matches normalizeSymbol
+    }
+    return prices;
+  } catch (e) { return {}; }
+}
+
 async function refreshPrices() {
   const openPos = data.positions.filter(p => computePosition(p).status === 'open');
   if (openPos.length === 0) { $('price-status').textContent = ''; return; }
   const symbols = [...new Set(openPos.map(p => normalizeSymbol(p.pair)))];
+
   $('price-status').textContent = t('price_updating');
-  try {
-    const query = encodeURIComponent(JSON.stringify(symbols));
-    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + query);
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const arr = await res.json();
-    if (!Array.isArray(arr)) throw new Error('Bad response');
-    for (const item of arr) livePrices[item.symbol] = parseFloat(item.price);
-    const now = new Date();
-    $('price-status').textContent = t('price_last') + ': ' + now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  $('price-status').style.color = 'var(--text-secondary)';
+
+  // Step 1: Try Binance first
+  const { prices: binancePrices, failed } = await fetchBinancePrices(symbols);
+  for (const sym of Object.keys(binancePrices)) livePrices[sym] = binancePrices[sym];
+
+  // Step 2: For failed symbols, fall back to CoinGecko
+  let coingeckoCount = 0;
+  if (failed.length > 0) {
+    const bases = failed.map(s => s.replace(/USDT$/, ''));
+    const cgPrices = await fetchCoinGeckoPrices(bases);
+    for (const sym of Object.keys(cgPrices)) {
+      livePrices[sym] = cgPrices[sym];
+      coingeckoCount++;
+    }
+  }
+
+  // Update status
+  const totalFound = Object.keys(binancePrices).length + coingeckoCount;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  if (totalFound === symbols.length) {
+    $('price-status').textContent = t('price_last') + ': ' + timeStr;
     $('price-status').style.color = 'var(--text-secondary)';
-  } catch (e) {
+  } else if (totalFound > 0) {
+    $('price-status').textContent = t('price_last') + ': ' + timeStr + ' (' + totalFound + '/' + symbols.length + ')';
+    $('price-status').style.color = 'var(--text-secondary)';
+  } else {
     $('price-status').textContent = t('price_fail');
     $('price-status').style.color = 'var(--warning)';
   }
