@@ -1,0 +1,2783 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a1a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ahmed Alfaraj">
+<title>Ahmed Alfaraj Trading Portfolio</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E📊%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+<style>
+:root {
+  --bg-page: #fdfaf2;
+  --bg-card: #ffffff;
+  --bg-subtle: #f5ecd4;
+  --bg-subtle-2: #faf3e0;
+  --header-bg: #0a0a1a;
+  --header-text: #f0e4c0;
+  --gold: #c9a961;
+  --gold-dark: #8b6914;
+  --gold-light: #e9d5a1;
+  --gold-glow: rgba(201, 169, 97, 0.15);
+
+  --c-binance: #f0b90b;
+  --c-binance-bg: #fff8e1;
+  --c-binance-border: #f0b90b55;
+  --c-kucoin: #24ae8f;
+  --c-kucoin-bg: #e4f7f1;
+  --c-kucoin-border: #24ae8f55;
+  --c-bybit: #f7a600;
+  --c-bybit-bg: #fdf1df;
+  --c-bybit-border: #f7a60055;
+  --c-total: #7b3fe4;
+  --c-total-bg: #f1ecff;
+  --c-total-border: #7b3fe455;
+
+  --c-stat-open: #2563eb;
+  --c-stat-open-bg: #dbeafe;
+  --c-stat-pnl-bg: #ecfdf5;
+  --c-stat-unr-bg: #fef3e2;
+  --c-stat-roi-bg: #fce7f3;
+
+  --success: #059862;
+  --success-bg: #d7f5e4;
+  --danger: #dc2626;
+  --danger-bg: #fde2e2;
+  --info: #2563eb;
+  --info-bg: #dbeafe;
+  --warning: #d97706;
+  --warning-bg: #fef0d4;
+
+  --text-primary: #1a1a2e;
+  --text-secondary: #6b7280;
+  --text-muted: #9ca3af;
+
+  --border: rgba(0,0,0,0.08);
+  --border-gold: rgba(201, 169, 97, 0.35);
+  --border-strong: rgba(0,0,0,0.2);
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-gold: 0 2px 8px rgba(201, 169, 97, 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-page: #0a0a1a;
+    --bg-card: #15152e;
+    --bg-subtle: #1f1f3d;
+    --bg-subtle-2: #252548;
+    --header-bg: #050510;
+    --header-text: #f0e4c0;
+    --gold: #e5c25f;
+    --gold-dark: #d4a94a;
+    --gold-light: #8b6914;
+    --gold-glow: rgba(229, 194, 95, 0.2);
+
+    --c-binance-bg: #2a240f;
+    --c-binance-border: #f0b90b66;
+    --c-kucoin-bg: #0f2a24;
+    --c-kucoin-border: #24ae8f66;
+    --c-bybit-bg: #2a1f0f;
+    --c-bybit-border: #f7a60066;
+    --c-total-bg: #201a38;
+    --c-total-border: #7b3fe466;
+
+    --c-stat-open-bg: #0f1e3a;
+    --c-stat-pnl-bg: #0a2820;
+    --c-stat-unr-bg: #2a1f0f;
+    --c-stat-roi-bg: #2a1628;
+
+    --success: #4ade80;
+    --success-bg: #0f2a1e;
+    --danger: #f87171;
+    --danger-bg: #2a1414;
+    --info: #60a5fa;
+    --info-bg: #0f1e3a;
+    --warning: #fbbf24;
+    --warning-bg: #2a1f0a;
+
+    --text-primary: #f5f3ee;
+    --text-secondary: #a0a0b8;
+    --text-muted: #6a6a80;
+
+    --border: rgba(255,255,255,0.08);
+    --border-gold: rgba(229, 194, 95, 0.3);
+    --border-strong: rgba(255,255,255,0.2);
+
+    --shadow-card: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  }
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-page);
+  color: var(--text-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 1.25rem 1rem;
+  min-height: 100vh;
+}
+.container { max-width: 1200px; margin: 0 auto; }
+
+input, select, textarea, button {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  min-height: 38px;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+button {
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--bg-card);
+  border-color: var(--border-strong);
+  font-weight: 500;
+}
+button:hover { background: var(--bg-subtle-2); border-color: var(--gold); }
+button:active { transform: scale(0.97); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%) !important;
+  color: #fff !important;
+  border: 1px solid var(--gold-dark) !important;
+  box-shadow: var(--shadow-gold);
+  font-weight: 600;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%) !important;
+  filter: brightness(1.05);
+}
+
+h1, h2, h3 { font-weight: 500; margin: 0; }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, var(--header-bg) 0%, #12122a 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  position: relative;
+  overflow: hidden;
+}
+.app-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.app-header img {
+  height: 92px;
+  width: 92px;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid var(--border-gold);
+  box-shadow: 0 3px 16px rgba(0,0,0,0.35);
+}
+.app-header .title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #f5e4b0 0%, #c9a961 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--header-text);
+}
+.app-header .subtitle {
+  font-size: 13px;
+  color: #9a9176;
+  margin-top: 4px;
+}
+.lang-toggle {
+  background: rgba(255,255,255,0.05) !important;
+  color: var(--header-text) !important;
+  border: 1px solid var(--border-gold) !important;
+  font-weight: 600;
+  padding: 6px 14px;
+  min-height: 32px;
+  font-size: 13px;
+}
+.lang-toggle:hover { background: rgba(201, 169, 97, 0.15) !important; }
+
+.backup-banner {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--warning-bg);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  font-size: 13px;
+}
+
+.bal-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--shadow-card);
+}
+.bal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--card-color, var(--gold));
+}
+.bal-card.binance { background: var(--c-binance-bg); --card-color: var(--c-binance); }
+.bal-card.kucoin { background: var(--c-kucoin-bg); --card-color: var(--c-kucoin); }
+.bal-card.bybit { background: var(--c-bybit-bg); --card-color: var(--c-bybit); }
+.bal-card.total { background: var(--c-total-bg); --card-color: var(--c-total); }
+.bal-label { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+.bal-value { font-size: 22px; font-weight: 600; color: var(--text-primary); }
+.bal-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+.stat-card { border-radius: var(--radius); padding: 0.75rem 1rem; border: 1px solid var(--border); }
+.stat-open { background: var(--c-stat-open-bg); }
+.stat-pnl { background: var(--c-stat-pnl-bg); }
+.stat-unr { background: var(--c-stat-unr-bg); }
+.stat-roi { background: var(--c-stat-roi-bg); }
+
+.section-label {
+  display: flex; align-items: center; gap: 12px;
+  margin: 1.5rem 0 0.75rem;
+  font-weight: 600; font-size: 15px;
+}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--border-gold); }
+
+.form-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow-card);
+}
+.form-title { font-weight: 600; font-size: 16px; color: var(--gold-dark); margin-bottom: 1rem; }
+
+.pos-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 1.25rem;
+  margin-bottom: 10px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s, box-shadow 0.15s;
+}
+.pos-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
+.pos-card.win { border-inline-start: 4px solid var(--success); }
+.pos-card.loss { border-inline-start: 4px solid var(--danger); }
+
+.badge {
+  font-size: 12px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+  display: inline-block;
+}
+.badge-exchange { background: var(--bg-subtle); color: var(--text-secondary); border: 1px solid var(--border); }
+.badge-exchange.binance { background: var(--c-binance-bg); color: var(--gold-dark); border-color: var(--c-binance-border); }
+.badge-exchange.kucoin { background: var(--c-kucoin-bg); color: var(--c-kucoin); border-color: var(--c-kucoin-border); }
+.badge-exchange.bybit { background: var(--c-bybit-bg); color: var(--c-bybit); border-color: var(--c-bybit-border); }
+
+.empty-state {
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--text-secondary);
+  font-size: 13px;
+  border: 1.5px dashed var(--border-gold);
+  border-radius: var(--radius-lg);
+  background: var(--bg-subtle-2);
+}
+
+.entry-row {
+  display: flex; gap: 10px; align-items: center;
+  padding: 6px 10px;
+  background: var(--bg-subtle-2);
+  border-radius: var(--radius);
+  margin-bottom: 4px;
+  font-size: 12px;
+  border: 1px solid var(--border);
+}
+
+.tx-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 6px;
+  font-size: 13px;
+}
+
+.field-group label {
+  font-size: 13px;
+  color: var(--text-secondary);
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+.field-group input, .field-group select { width: 100%; }
+
+.pos-group {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+  box-shadow: var(--shadow-card);
+}
+.pos-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, var(--bg-subtle) 0%, var(--bg-subtle-2) 100%);
+  border-bottom: 2px solid var(--border-gold);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.pos-group-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--gold-dark);
+  letter-spacing: 0.3px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.pos-group-title .count-pill {
+  background: var(--bg-card);
+  color: var(--gold-dark);
+  font-size: 12px;
+  padding: 2px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--border-gold);
+  font-weight: 600;
+}
+.pos-group-stats {
+  display: flex;
+  gap: 18px;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.pos-group-stats .stat-label {
+  color: var(--text-secondary);
+  margin-inline-end: 4px;
+  font-size: 12px;
+}
+.pos-group-stats strong { font-weight: 600; font-size: 14px; }
+
+.pos-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.pos-table thead {
+  background: var(--bg-subtle-2);
+}
+.pos-table th {
+  padding: 11px 14px;
+  text-align: start;
+  color: var(--gold-dark);
+  font-weight: 600;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--border-gold);
+  white-space: nowrap;
+}
+.pos-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  white-space: nowrap;
+}
+.pos-table .num { font-variant-numeric: tabular-nums; font-weight: 500; }
+.pos-table .pos-amt { color: var(--success); font-weight: 600; }
+.pos-table .neg-amt { color: var(--danger); font-weight: 600; }
+
+.pos-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.pos-row:hover { background: var(--bg-subtle-2); }
+.pos-row.win { background: rgba(5, 152, 98, 0.05); }
+.pos-row.loss { background: rgba(220, 38, 38, 0.05); }
+.pos-row.win:hover { background: rgba(5, 152, 98, 0.11); }
+.pos-row.loss:hover { background: rgba(220, 38, 38, 0.11); }
+.pos-row.expanded { background: var(--bg-subtle-2); }
+.pos-row.expanded td:first-child strong { color: var(--gold-dark); }
+.pos-row td:last-child { border-bottom: none; }
+
+.cell-pair { min-width: 120px; }
+.cell-pair strong {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+.caret {
+  display: inline-block;
+  font-size: 9px;
+  color: var(--text-muted);
+  margin-inline-end: 8px;
+  transition: transform 0.15s;
+  width: 10px;
+}
+
+.side-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  min-width: 50px;
+  text-align: center;
+}
+.side-pill.long { background: var(--success-bg); color: var(--success); }
+.side-pill.short { background: var(--danger-bg); color: var(--danger); }
+
+.live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--success);
+  margin-inline-end: 6px;
+  vertical-align: middle;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.85); }
+}
+
+.pos-detail-row td {
+  padding: 0 !important;
+  background: var(--bg-subtle);
+  border-inline-start: 3px solid var(--gold);
+}
+.pos-detail {
+  padding: 16px 20px;
+  animation: slideDown 0.15s ease-out;
+}
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 14px;
+}
+.detail-col {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.detail-col-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold-dark);
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.detail-item {
+  display: flex;
+  gap: 10px;
+  padding: 6px 8px;
+  font-size: 12px;
+  align-items: center;
+  border-radius: 6px;
+}
+.detail-item:hover { background: var(--bg-subtle-2); }
+.detail-item .dt-date { color: var(--text-muted); min-width: 80px; font-size: 11px; }
+.detail-item .dt-main { font-weight: 500; }
+.detail-item .dt-note { color: var(--text-muted); font-size: 11px; flex: 1; font-style: italic; }
+.detail-item .dt-del {
+  background: transparent;
+  border: none;
+  color: var(--danger);
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 14px;
+  min-height: unset;
+  opacity: 0.5;
+  transition: opacity 0.1s;
+  margin-inline-start: auto;
+}
+.detail-item:hover .dt-del { opacity: 1; }
+.detail-item .dt-del:hover { background: var(--danger-bg); }
+
+.detail-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 1px solid var(--border);
+}
+.detail-actions button { font-size: 13px; padding: 7px 14px; }
+.btn-danger {
+  color: var(--danger) !important;
+  border-color: var(--danger) !important;
+  margin-inline-start: auto;
+}
+.btn-danger:hover {
+  background: var(--danger-bg) !important;
+  border-color: var(--danger) !important;
+}
+
+@media (max-width: 900px) {
+  .pos-table { font-size: 12px; }
+  .pos-table th, .pos-table td { padding: 9px 10px; }
+  .detail-grid { grid-template-columns: 1fr; gap: 10px; }
+}
+
+/* ========== MOBILE LAYOUT (< 700px) ========== */
+@media (max-width: 700px) {
+  body { padding: 0.6rem 0.5rem; font-size: 13px; }
+
+  /* --- HEADER --- */
+  .app-header {
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    padding: 0.85rem 1rem;
+  }
+  .app-header img {
+    height: 56px;
+    width: 56px;
+    order: -1;
+  }
+  .app-header > div:nth-child(2) {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+  .app-header .title { font-size: 15px; letter-spacing: 0.3px; }
+  .app-header .subtitle { font-size: 11px; margin-top: 2px; }
+  .sync-status { font-size: 10px; padding: 4px 10px; }
+  .lang-toggle { font-size: 11px; padding: 4px 10px; min-height: 28px; }
+  .user-btn { font-size: 11px; min-height: 30px; padding: 3px 10px 3px 3px; }
+  .user-avatar { width: 24px; height: 24px; }
+  #user-name-short { max-width: 70px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Wrap sync + lang + user into their own row */
+  .app-header .sync-status,
+  .app-header > button.lang-toggle,
+  .app-header > div:last-child {
+    order: 2;
+  }
+
+  /* --- BACKUP BANNER --- */
+  .backup-banner { flex-wrap: wrap; font-size: 12px; padding: 10px 12px; }
+  .backup-banner > button { flex: 1 1 auto; font-size: 12px; min-height: 34px; }
+
+  /* --- BALANCE CARDS: 2x2 grid --- */
+  div[style*="grid-template-columns: repeat(4, minmax(0, 1fr))"] {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 8px !important;
+  }
+  .bal-card { padding: 0.7rem 0.85rem; min-width: 0; }
+  .bal-card::before { width: 3px; }
+  .bal-label { font-size: 11px; margin-bottom: 4px; }
+  .bal-value { font-size: 17px; }
+  .bal-sub { font-size: 10px; line-height: 1.4; }
+
+  /* --- STATS CARDS: 2x2 grid --- */
+  .stat-card { padding: 0.6rem 0.75rem; min-width: 0; }
+  .stat-card > div:first-child { font-size: 11px !important; }
+  .stat-card > div:last-child { font-size: 15px !important; }
+
+  /* --- ACTION BUTTONS --- */
+  div[style*="display: flex"][style*="margin-bottom: 1rem"][style*="flex-wrap: wrap"] button {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    font-size: 12px;
+    padding: 8px 10px;
+    min-height: 38px;
+  }
+  div[style*="display: flex"][style*="margin-bottom: 1rem"][style*="flex-wrap: wrap"] select {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  #price-status { flex: 1 1 100%; text-align: center; font-size: 11px; margin: 4px 0; }
+
+  /* --- SECTION LABELS --- */
+  .section-label { font-size: 13px; margin: 1.2rem 0 0.6rem; }
+
+  /* --- MERGE BANNER --- */
+  .merge-banner { padding: 10px 12px; font-size: 12px; gap: 8px; }
+  .merge-banner button { width: 100%; font-size: 12px; }
+
+  /* --- POSITION CARDS (transformed table) --- */
+  .pos-group { overflow: visible; background: transparent; border: none; box-shadow: none; margin-bottom: 1rem; }
+  .pos-group-header {
+    padding: 10px 12px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border-gold);
+    border-bottom: 1px solid var(--border-gold);
+    margin-bottom: 8px;
+    font-size: 12px;
+    gap: 8px;
+  }
+  .pos-group-title { font-size: 13px; }
+  .pos-group-stats { font-size: 11px; gap: 12px; width: 100%; }
+  .pos-group-stats strong { font-size: 12px; }
+
+  /* Transform the table into card-per-row layout */
+  .pos-group > div { overflow: visible !important; }
+  .pos-table { min-width: unset; display: block; font-size: 12px; }
+  .pos-table thead { display: none; }
+  .pos-table tbody, .pos-table tbody tr, .pos-table tbody td { display: block; width: 100%; }
+  .pos-table tbody { border: none; }
+
+  .pos-row {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius-lg) !important;
+    padding: 12px 14px !important;
+    margin-bottom: 8px;
+    box-shadow: var(--shadow-card);
+    white-space: normal;
+  }
+  .pos-row.win { border-inline-start: 3px solid var(--success) !important; }
+  .pos-row.loss { border-inline-start: 3px solid var(--danger) !important; }
+
+  .pos-row td {
+    padding: 4px 0 !important;
+    border: none !important;
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    white-space: normal;
+  }
+
+  /* First cell (pair) becomes the card title */
+  .pos-row td.cell-pair {
+    padding: 0 0 8px 0 !important;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--border) !important;
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  .pos-row td.cell-pair strong { font-size: 15px; }
+  .pos-row td.cell-pair::before { display: none; }
+
+  /* Exchange and Side: shown as pills on the same row as pair */
+  .pos-row td:nth-child(2), .pos-row td:nth-child(3) {
+    position: absolute;
+    visibility: hidden;
+  }
+  /* We'll re-add them via a wrapper — better approach: keep them visible with labels */
+  .pos-row td:nth-child(2)::before { content: attr(data-label); }
+  .pos-row td:nth-child(3)::before { content: attr(data-label); }
+
+  /* Show them normally with labels */
+  .pos-row td:nth-child(2),
+  .pos-row td:nth-child(3) {
+    position: static;
+    visibility: visible;
+  }
+
+  /* Data cells: use data-label attribute for the label */
+  .pos-row td[data-label]::before {
+    content: attr(data-label);
+    font-size: 11px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .pos-row td.num { font-weight: 600; font-size: 13px; }
+
+  /* Expanded detail on mobile */
+  .pos-detail-row { display: block !important; margin: -4px 0 8px; }
+  .pos-detail-row td { padding: 0 !important; border-inline-start: 3px solid var(--gold) !important; background: var(--bg-subtle) !important; border-radius: var(--radius); }
+  .pos-detail { padding: 12px; }
+  .detail-grid { grid-template-columns: 1fr; gap: 8px; }
+  .detail-col { padding: 10px; }
+  .detail-item { flex-wrap: wrap; font-size: 11px; }
+  .detail-item .dt-date { min-width: 68px; }
+  .detail-actions { gap: 6px; }
+  .detail-actions button { font-size: 12px; padding: 6px 10px; flex: 1 1 auto; }
+  .btn-danger { width: 100%; margin: 6px 0 0; }
+
+  /* --- TRANSACTIONS --- */
+  .tx-row {
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .tx-row .badge { font-size: 11px; padding: 2px 8px; }
+  .tx-row > button { margin-inline-start: auto; }
+
+  /* --- FORMS --- */
+  .form-card { padding: 1rem; }
+  .form-title { font-size: 14px; }
+  .form-card div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+    gap: 10px !important;
+  }
+  .field-group input, .field-group select { font-size: 14px; padding: 10px 12px; }
+
+  /* --- LOGIN --- */
+  .login-card { padding: 2rem 1.5rem; }
+  .login-logo { width: 88px; height: 88px; margin-bottom: 1rem; }
+  .login-title { font-size: 18px; }
+  .login-subtitle { font-size: 12px; margin-bottom: 1.5rem; }
+  .btn-google { font-size: 14px; padding: 11px 16px; }
+  .login-info { font-size: 11px; }
+
+  /* --- MODAL --- */
+  .modal { padding: 1.25rem 1rem 1rem; }
+  .modal-title { font-size: 16px; }
+  .modal-subtitle { font-size: 12px; }
+  .merge-stats { grid-template-columns: 1fr; }
+  .modal-actions button { flex: 1 1 auto; }
+
+  /* --- REPORTS PANEL --- */
+  #reports-panel div[style*="grid-template-columns"] {
+    grid-template-columns: 1fr !important;
+  }
+  #reports-panel button[data-rep] {
+    flex: 1 1 calc(50% - 4px);
+    font-size: 12px !important;
+  }
+}
+
+/* ========== VERY SMALL PHONES (< 380px) ========== */
+@media (max-width: 380px) {
+  .bal-value { font-size: 15px; }
+  .pos-row td.cell-pair strong { font-size: 14px; }
+  div[style*="grid-template-columns: repeat(4, minmax(0, 1fr))"] {
+    gap: 6px !important;
+  }
+  .bal-card { padding: 0.6rem 0.7rem; }
+  .bal-sub { font-size: 9px; }
+}
+
+/* ========== LOGIN SCREEN ========== */
+#login-screen {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a38 50%, #0a0a1a 100%);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 2rem;
+}
+#login-screen.active { display: flex; }
+#login-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 30%, rgba(201,169,97,0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+.login-card {
+  background: rgba(20, 20, 40, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201,169,97,0.3);
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  position: relative;
+  overflow: hidden;
+}
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c9a961, transparent);
+}
+.login-logo {
+  width: 120px;
+  height: 120px;
+  border-radius: 16px;
+  object-fit: cover;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(201,169,97,0.4);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.login-title {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #f5e4b0 0%, #c9a961 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #f5e4b0;
+  margin-bottom: 0.5rem;
+}
+.login-subtitle {
+  font-size: 13px;
+  color: #a08f60;
+  margin-bottom: 2rem;
+  letter-spacing: 0.3px;
+}
+.btn-google {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 20px;
+  background: #ffffff;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  font-family: inherit;
+  min-height: 48px;
+}
+.btn-google:hover { background: #f8f9fa; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.btn-google:active { transform: scale(0.98); }
+.btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
+.login-info {
+  font-size: 12px;
+  color: #7a6a40;
+  margin-top: 1.5rem;
+  line-height: 1.6;
+}
+.login-info strong { color: #c9a961; font-weight: 500; }
+.login-error {
+  color: #f87171;
+  font-size: 13px;
+  margin-top: 1rem;
+  padding: 10px;
+  background: rgba(220,38,38,0.1);
+  border: 1px solid rgba(220,38,38,0.3);
+  border-radius: 8px;
+  display: none;
+}
+
+/* ========== SYNC STATUS ========== */
+.sync-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(201,169,97,0.2);
+  color: #a08f60;
+  white-space: nowrap;
+}
+.sync-status.synced { background: rgba(5,152,98,0.15); border-color: rgba(5,152,98,0.4); color: #4ade80; }
+.sync-status.saving { background: rgba(201,169,97,0.15); border-color: rgba(201,169,97,0.4); color: #e5c25f; }
+.sync-status.offline { background: rgba(220,38,38,0.12); border-color: rgba(220,38,38,0.3); color: #f87171; }
+.sync-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.sync-status.saving .sync-dot { animation: pulse 1s ease-in-out infinite; }
+
+/* ========== USER MENU ========== */
+.user-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px 4px 4px;
+  background: rgba(255,255,255,0.05) !important;
+  border: 1px solid rgba(201,169,97,0.25) !important;
+  color: #f0e4c0 !important;
+  border-radius: 24px;
+  min-height: 36px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  position: relative;
+}
+.user-btn:hover { background: rgba(201,169,97,0.12) !important; }
+.user-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(201,169,97,0.4);
+}
+.user-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-end: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-gold);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 220px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  z-index: 100;
+  display: none;
+}
+.user-menu.active { display: block; }
+.user-menu-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+  color: var(--text-primary);
+}
+.user-menu-header .um-name { font-weight: 600; font-size: 13px; }
+.user-menu-header .um-email { font-size: 11px; color: var(--text-secondary); margin-top: 2px; word-break: break-all; }
+.user-menu button {
+  width: 100%;
+  text-align: start;
+  background: transparent !important;
+  border: none !important;
+  padding: 9px 12px;
+  border-radius: 6px;
+  color: var(--text-primary) !important;
+  font-size: 13px;
+  min-height: unset;
+  cursor: pointer;
+}
+.user-menu button:hover { background: var(--bg-subtle) !important; }
+.user-menu button.danger { color: var(--danger) !important; }
+.user-menu button.danger:hover { background: var(--danger-bg) !important; }
+
+/* Hide main app until signed in */
+.main-app { display: none; }
+.main-app.active { display: block; }
+
+/* ========== MERGE BANNER & MODAL ========== */
+.merge-banner {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, rgba(201,169,97,0.12) 0%, rgba(201,169,97,0.06) 100%);
+  border: 1px solid var(--border-gold);
+  border-radius: var(--radius);
+  margin-bottom: 1rem;
+  font-size: 13px;
+  flex-wrap: wrap;
+}
+.merge-banner.active { display: flex; }
+.merge-banner-text { flex: 1; color: var(--text-primary); }
+.merge-banner-text strong { color: var(--gold-dark); font-weight: 600; }
+.merge-banner button { font-size: 13px; padding: 7px 14px; }
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9998;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.modal-backdrop.active { display: flex; }
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  max-width: 680px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 1.75rem 1.75rem 1.5rem;
+  border: 1px solid var(--border-gold);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  position: relative;
+}
+.modal-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold-dark);
+  margin-bottom: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border-gold);
+}
+.modal-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin: 12px 0 1.25rem;
+}
+.merge-group {
+  background: var(--bg-subtle-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.merge-group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+  flex-wrap: wrap;
+}
+.merge-group-pair { font-weight: 600; font-size: 15px; color: var(--text-primary); }
+.merge-group-summary {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-inline-start: auto;
+}
+.merge-group-summary strong { color: var(--gold-dark); font-weight: 600; }
+.merge-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--bg-card);
+  border-radius: 6px;
+  margin-bottom: 10px;
+  font-size: 13px;
+}
+.merge-stat-label { color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+.merge-stat-value { font-weight: 600; color: var(--text-primary); margin-top: 2px; }
+.merge-details {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+.merge-details-item {
+  padding: 4px 8px;
+  font-variant-numeric: tabular-nums;
+}
+.merge-info {
+  padding: 10px 14px;
+  background: var(--info-bg);
+  color: var(--info);
+  border-radius: 6px;
+  font-size: 12px;
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+@media print {
+  body * { visibility: hidden !important; }
+  #report-area, #report-area * { visibility: visible !important; }
+  #report-area { position: absolute !important; top: 0; right: 0; left: 0; padding: 0 !important; background: white !important; color: black !important; border: none !important; }
+  #report-area .no-print { display: none !important; }
+  #report-area img { display: block !important; max-height: 80px; }
+  #report-area table { border-collapse: collapse; width: 100%; font-size: 10pt; }
+  #report-area th, #report-area td { border: 1px solid #999 !important; padding: 5px 8px !important; text-align: start; color: black !important; background: white !important; }
+  #report-area th { background: #f0e8d0 !important; font-weight: 600; color: #5a4510 !important; }
+  #report-area .pos { color: #0a6b1e !important; }
+  #report-area .neg { color: #a32d2d !important; }
+  #report-area .summary-box { background: #faf3e0 !important; border: 1px solid #d0c090 !important; }
+  @page { size: A4; margin: 1.5cm; }
+}
+</style>
+</head>
+<body>
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="login-screen">
+  <div class="login-card">
+    <img id="login-logo" class="login-logo" alt="Ahmed Alfaraj" />
+    <div class="login-title">Ahmed Alfaraj Trading</div>
+    <div class="login-subtitle" data-i18n="login_subtitle">سجل التداول الشخصي · مزامنة آمنة عبر السحابة</div>
+    <button id="btn-signin" class="btn-google">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      <span data-i18n="btn_signin">تسجيل الدخول بحساب Google</span>
+    </button>
+    <div id="login-error" class="login-error"></div>
+    <div class="login-info"><span id="login-info-1">بياناتك تُحفظ بشكل آمن في حسابك الخاص ومُشفّرة بقواعد Firebase الصارمة. لا يستطيع أحد غيرك الوصول إليها</span> — <strong id="login-info-2">حتى نحن</strong>.</div>
+  </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div class="main-app" id="main-app">
+<div class="container">
+
+<div class="app-header">
+  <img id="logo-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAQDAwMDAgQDAwMEBAQFBgoGBgUFBgwICQcKDgwPDg4MDQ0PERYTDxAVEQ0NExoTFRcYGRkZDxIbHRsYHRYYGRj/2wBDAQQEBAYFBgsGBgsYEA0QGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBgYGBj/wAARCAFAAUADASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAYHBQgDBAkCAf/EAEwQAAEDBAECBAMDBwkEBwkAAAEAAgMEBQYRBxIhCBMxQSJRYRQycRUjQlJigYIJFjNTcpGSocEXJIOiGChDRHOxsmNkhJOjwtLh8f/EABoBAQADAQEBAAAAAAAAAAAAAAACAwQBBQb/xAA0EQACAQIDBQYFBAIDAAAAAAAAAQIDEQQSITFBUWGxEyKBkcHwFCMycdEFYqHhQvEVM1L/2gAMAwEAAhEDEQA/APP9ERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBEA2rX4y8PHI3J2rhRW0WfH2fHPfbtunpo2DuXNJ7yaG/u9vmQq6tWFKOao7IlGLk7JFUIrj5L8NXI/HdM+9Q0ceS4w4eZBfrIftED4/Zzw3ZZ29ztvycVThGkpVYVY5oO6EouLswiIrCIREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREAREQBERAEREARFavFPAOccqudcaKGK0Y5Ds1N+uJ8unja373TvXmEDe9dh+k5qrq1YUo56jsiUYuTtFFVtY57g1rSSToAe6urC/DPmt9sYyjMaugwLF2gOfdchf5Jc0/wBXESHOJ9t9O/bauHHf9lHE1qmuHGdtt+QVtI7yqrkXKti3UsnfbaONo6p5PXTIhv028juqfzvnWvu97Nba6utvV2YTrI77Gx0sXz+x0g3DSN+RAdJ+0CsHxNau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" alt="Ahmed Alfaraj" />
+  <div style="flex: 1;">
+    <div class="title">Ahmed Alfaraj Trading Portfolio</div>
+    <div class="subtitle"><span data-i18n="subtitle">سجل التداول</span> · Binance · KuCoin · Bybit</div>
+  </div>
+  <div id="sync-status" class="sync-status"><span class="sync-dot"></span><span id="sync-text">—</span></div>
+  <button id="btn-lang" class="lang-toggle">EN</button>
+  <div style="position: relative;">
+    <button id="btn-user" class="user-btn">
+      <img id="user-avatar" class="user-avatar" alt="" />
+      <span id="user-name-short">—</span>
+    </button>
+    <div id="user-menu" class="user-menu">
+      <div class="user-menu-header">
+        <div class="um-name" id="um-full-name">—</div>
+        <div class="um-email" id="um-email">—</div>
+      </div>
+      <button id="btn-signout" class="danger" data-i18n="btn_signout">تسجيل الخروج</button>
+    </div>
+  </div>
+</div>
+
+<div id="backup-banner" class="backup-banner">
+  <span>💾 <span data-i18n="backup_msg_1">لم تأخذ نسخة احتياطية منذ</span> <span id="backup-days">—</span><span data-i18n="backup_msg_2">. يُنصح بأخذ نسخة الآن.</span></span>
+  <div style="flex:1;"></div>
+  <button id="btn-backup-now" data-i18n="btn_backup_now" style="font-size:13px;">تحميل النسخة</button>
+  <button id="btn-backup-dismiss" data-i18n="btn_dismiss" style="font-size:13px;">إخفاء</button>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 1rem;">
+  <div class="bal-card binance">
+    <div class="bal-label">💰 <span data-i18n="bal_binance">رصيد Binance</span></div>
+    <div id="bal-binance" class="bal-value">$0.00</div>
+    <div id="bal-binance-sub" class="bal-sub"></div>
+  </div>
+  <div class="bal-card kucoin">
+    <div class="bal-label">💰 <span data-i18n="bal_kucoin">رصيد KuCoin</span></div>
+    <div id="bal-kucoin" class="bal-value">$0.00</div>
+    <div id="bal-kucoin-sub" class="bal-sub"></div>
+  </div>
+  <div class="bal-card bybit">
+    <div class="bal-label">💰 <span data-i18n="bal_bybit">رصيد Bybit</span></div>
+    <div id="bal-bybit" class="bal-value">$0.00</div>
+    <div id="bal-bybit-sub" class="bal-sub"></div>
+  </div>
+  <div class="bal-card total">
+    <div class="bal-label">💎 <span data-i18n="bal_total">الإجمالي</span></div>
+    <div id="bal-total" class="bal-value">$0.00</div>
+    <div id="bal-total-sub" class="bal-sub"></div>
+  </div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-bottom: 1.5rem;">
+  <div class="stat-card stat-open"><div style="font-size: 12px; color: var(--text-secondary);" data-i18n="stat_open">مراكز مفتوحة</div><div id="stat-open" style="font-size: 18px; font-weight: 600;">0</div></div>
+  <div class="stat-card stat-pnl"><div style="font-size: 12px; color: var(--text-secondary);" data-i18n="stat_pnl">ربح محقق</div><div id="stat-pnl" style="font-size: 18px; font-weight: 600;">$0.00</div></div>
+  <div class="stat-card stat-unr"><div style="font-size: 12px; color: var(--text-secondary);" data-i18n="stat_unr">ربح غير محقق</div><div id="stat-unr" style="font-size: 18px; font-weight: 600;">$0.00</div></div>
+  <div class="stat-card stat-roi"><div style="font-size: 12px; color: var(--text-secondary);" data-i18n="stat_roi">نسبة الأداء</div><div id="stat-roi-val" style="font-size: 18px; font-weight: 600;">0%</div></div>
+</div>
+
+<div style="display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; align-items: center;">
+  <button id="btn-new-pos" class="btn-primary" data-i18n="btn_new_pos">+ مركز جديد</button>
+  <button id="btn-new-tx" data-i18n="btn_new_tx">+ إيداع / سحب</button>
+  <button id="btn-opening" data-i18n="btn_opening">رصيد افتتاحي</button>
+  <button id="btn-reports" data-i18n="btn_reports">📄 التقارير</button>
+  <button id="btn-refresh-prices" data-i18n="btn_refresh">🔄 تحديث الأسعار</button>
+  <button id="btn-export" data-i18n="btn_export">تصدير</button>
+  <button id="btn-import" data-i18n="btn_import">استيراد</button>
+  <input id="import-file" type="file" accept=".json" style="display:none;" />
+  <div style="flex: 1;"></div>
+  <span id="price-status" style="font-size:12px; color:var(--text-muted);"></span>
+  <select id="filter-exchange" style="min-width: 120px;"><option value="all" data-i18n="f_all_ex">كل المنصات</option><option value="Binance">Binance</option><option value="KuCoin">KuCoin</option><option value="Bybit">Bybit</option></select>
+  <select id="filter-status" style="min-width: 120px;"><option value="all" data-i18n="f_all_st">كل الحالات</option><option value="open" data-i18n="status_open">مفتوحة</option><option value="closed" data-i18n="status_closed">مغلقة</option></select>
+</div>
+
+<div id="reports-panel" class="form-card" style="display:none;">
+  <div class="form-title" data-i18n="reports_select">اختيار التقرير</div>
+  <div style="display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-bottom: 12px;">
+    <div class="field-group"><label data-i18n="from_date">من تاريخ (اختياري)</label><input id="rep-from" type="date" /></div>
+    <div class="field-group"><label data-i18n="to_date">إلى تاريخ (اختياري)</label><input id="rep-to" type="date" /></div>
+  </div>
+  <div style="display:flex; gap:8px; flex-wrap:wrap;">
+    <button data-rep="full" data-i18n="rep_full" style="font-size:13px;">📋 تقرير شامل</button>
+    <button data-rep="closed" data-i18n="rep_closed" style="font-size:13px;">💰 الصفقات المغلقة</button>
+    <button data-rep="pair" data-i18n="rep_pair" style="font-size:13px;">🔤 حسب الزوج</button>
+    <button data-rep="exchange" data-i18n="rep_exchange" style="font-size:13px;">🏦 حسب المنصة</button>
+    <button data-rep="month" data-i18n="rep_month" style="font-size:13px;">📅 الأداء الشهري</button>
+    <button data-rep="tx" data-i18n="rep_tx" style="font-size:13px;">💵 الحركات المالية</button>
+    <button data-rep="open" data-i18n="rep_open" style="font-size:13px;">📂 المراكز المفتوحة</button>
+  </div>
+</div>
+
+<div id="report-area" class="form-card" style="display:none;"></div>
+
+<div id="form-opening" class="form-card" style="display:none;">
+  <div class="form-title" data-i18n="form_opening_title">الرصيد الافتتاحي</div>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+    <div class="field-group"><label>Binance (USDT)</label><input id="op-binance" type="number" step="any" /></div>
+    <div class="field-group"><label>KuCoin (USDT)</label><input id="op-kucoin" type="number" step="any" /></div>
+    <div class="field-group"><label>Bybit (USDT)</label><input id="op-bybit" type="number" step="any" /></div>
+  </div>
+  <div style="display: flex; gap: 8px; margin-top: 1rem;"><button id="btn-op-save" class="btn-primary" data-i18n="btn_save">حفظ</button><button id="btn-op-cancel" data-i18n="btn_cancel">إلغاء</button></div>
+</div>
+
+<div id="form-tx" class="form-card" style="display:none;">
+  <div class="form-title" data-i18n="form_tx_title">إيداع / سحب</div>
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+    <div class="field-group"><label data-i18n="field_type">النوع</label><select id="tx-type"><option value="deposit" data-i18n="type_deposit">إيداع</option><option value="withdrawal" data-i18n="type_withdrawal">سحب</option></select></div>
+    <div class="field-group"><label data-i18n="field_exchange">المنصة</label><select id="tx-exchange"><option>Binance</option><option>KuCoin</option><option>Bybit</option></select></div>
+    <div class="field-group"><label data-i18n="field_amount">المبلغ (USDT)</label><input id="tx-amount" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_date">التاريخ</label><input id="tx-date" type="date" /></div>
+    <div class="field-group"><label data-i18n="field_time">الوقت</label><input id="tx-time" type="time" /></div>
+    <div class="field-group" style="grid-column: 1 / -1;"><label data-i18n="field_notes">ملاحظات</label><input id="tx-notes" type="text" /></div>
+  </div>
+  <div style="display: flex; gap: 8px; margin-top: 1rem;"><button id="btn-tx-save" class="btn-primary" data-i18n="btn_save">حفظ</button><button id="btn-tx-cancel" data-i18n="btn_cancel">إلغاء</button></div>
+</div>
+
+<div id="form-new" class="form-card" style="display:none;">
+  <div class="form-title" data-i18n="form_new_title">فتح مركز جديد</div>
+  <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px;">
+    <div class="field-group"><label data-i18n="field_exchange">المنصة</label><select id="n-exchange"><option>Binance</option><option>KuCoin</option><option>Bybit</option></select></div>
+    <div class="field-group"><label data-i18n="field_pair">العملة (مثال: BTC أو SOL)</label><input id="n-pair" type="text" placeholder="BTC" /></div>
+    <div class="field-group"><label data-i18n="field_side">النوع</label><select id="n-side"><option value="LONG" data-i18n="side_long">شراء / Long</option><option value="SHORT" data-i18n="side_short">بيع / Short</option></select></div>
+    <div class="field-group"><label data-i18n="field_date">التاريخ</label><input id="n-date" type="date" /></div>
+    <div class="field-group"><label data-i18n="field_time">الوقت</label><input id="n-time" type="time" /></div>
+    <div class="field-group"><label data-i18n="field_qty">الكمية</label><input id="n-qty" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_entry_price">سعر الدخول (USDT)</label><input id="n-price" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_fee">الرسوم USDT (اختياري)</label><input id="n-fee" type="number" step="any" placeholder="0" /></div>
+    <div class="field-group" style="grid-column: 1 / -1;"><label data-i18n="field_notes">ملاحظات</label><input id="n-notes" type="text" /></div>
+  </div>
+  <div style="display: flex; gap: 8px; margin-top: 1rem;"><button id="btn-new-save" class="btn-primary" data-i18n="btn_save_pos">حفظ المركز</button><button id="btn-new-cancel" data-i18n="btn_cancel">إلغاء</button></div>
+</div>
+
+<div id="form-entry" class="form-card" style="display:none;">
+  <div class="form-title" data-i18n="form_entry_title">إضافة دخول (DCA)</div>
+  <div id="entry-title" style="font-size: 13px; color: var(--text-secondary); margin: -8px 0 1rem;"></div>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+    <div class="field-group"><label data-i18n="field_qty">الكمية</label><input id="e-qty" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_price">السعر</label><input id="e-price" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_fee">الرسوم USDT (اختياري)</label><input id="e-fee" type="number" step="any" placeholder="0" /></div>
+    <div class="field-group"><label data-i18n="field_date">التاريخ</label><input id="e-date" type="date" /></div>
+    <div class="field-group"><label data-i18n="field_time">الوقت</label><input id="e-time" type="time" /></div>
+    <div class="field-group" style="grid-column: 1 / -1;"><label data-i18n="field_notes">ملاحظات</label><input id="e-notes" type="text" /></div>
+  </div>
+  <div style="display: flex; gap: 8px; margin-top: 1rem;"><button id="btn-entry-save" class="btn-primary" data-i18n="btn_add">إضافة</button><button id="btn-entry-cancel" data-i18n="btn_cancel">إلغاء</button></div>
+</div>
+
+<div id="form-close" class="form-card" style="display:none;">
+  <div class="form-title" data-i18n="form_close_title">إغلاق جزئي أو كلي</div>
+  <div id="close-title" style="font-size: 13px; color: var(--text-secondary); margin: -8px 0 1rem;"></div>
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
+    <div class="field-group"><label data-i18n="field_close_qty">الكمية المغلقة</label><input id="x-qty" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_exit_price">سعر الخروج</label><input id="x-price" type="number" step="any" /></div>
+    <div class="field-group"><label data-i18n="field_fee">الرسوم USDT (اختياري)</label><input id="x-fee" type="number" step="any" placeholder="0" /></div>
+    <div class="field-group"><label data-i18n="field_date">التاريخ</label><input id="x-date" type="date" /></div>
+    <div class="field-group"><label data-i18n="field_time">الوقت</label><input id="x-time" type="time" /></div>
+    <div class="field-group" style="grid-column: 1 / -1;"><label data-i18n="field_notes">ملاحظات</label><input id="x-notes" type="text" /></div>
+  </div>
+  <div style="display: flex; gap: 8px; margin-top: 1rem; flex-wrap: wrap;"><button id="btn-close-save" class="btn-primary" data-i18n="btn_confirm_close">تأكيد الإغلاق</button><button id="btn-close-all" data-i18n="btn_close_all_rem" style="font-size: 13px;">إغلاق المتبقي كاملاً</button><button id="btn-close-cancel" data-i18n="btn_cancel">إلغاء</button></div>
+</div>
+
+<div class="section-label"><span data-i18n="sec_positions">المراكز</span></div>
+<div id="merge-banner" class="merge-banner">
+  <span style="font-size:18px;">🔗</span>
+  <div class="merge-banner-text" id="merge-banner-text"></div>
+  <button id="btn-open-merge">مراجعة ودمج</button>
+</div>
+<div id="positions-list"></div>
+<div id="empty-positions" class="empty-state" data-i18n="empty_positions">لا توجد مراكز بعد.</div>
+
+<div class="section-label" id="tx-toggle" style="cursor: pointer;"><span data-i18n="sec_tx">الحركات المالية</span> <span id="tx-count" style="color: var(--text-muted); font-weight: 400; font-size: 13px;"></span><span id="tx-caret" style="font-size: 12px; color: var(--text-secondary); margin-inline-start: auto;">▼</span></div>
+<div id="tx-wrap">
+  <div id="tx-list"></div>
+  <div id="empty-tx" class="empty-state" data-i18n="empty_tx">لا توجد حركات مالية بعد.</div>
+</div>
+
+<div style="text-align:center; margin-top: 2rem; font-size: 12px; color: var(--text-muted);">
+  <span data-i18n="footer">مزامنة آمنة عبر السحابة</span> · Ahmed Alfaraj © 2026
+</div>
+
+</div>
+</div>
+
+<!-- ========== MERGE MODAL ========== -->
+<div id="merge-modal" class="modal-backdrop">
+  <div class="modal">
+    <div class="modal-title" data-i18n="merge_title">دمج المراكز المتشابهة</div>
+    <div class="modal-subtitle" data-i18n="merge_subtitle">تم اكتشاف مراكز في نفس الزوج/المنصة/النوع يمكن دمجها في مركز واحد مع حفظ جميع الدخولات الأصلية كسجل DCA.</div>
+    <div id="merge-groups-container"></div>
+    <div class="merge-info">ℹ️ <span data-i18n="merge_entries_preserved">كل الدخولات الأصلية بتواريخها تُحفظ كسجل DCA داخل المركز المدمج.</span></div>
+    <div class="modal-actions">
+      <button id="btn-cancel-merge" data-i18n="btn_cancel">إلغاء</button>
+      <button id="btn-do-merge" class="btn-primary" data-i18n="btn_confirm_merge">تأكيد الدمج</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== FIREBASE CONFIG ==========
+const firebaseConfig = {
+  apiKey: "AIzaSyAsXkU9YDbesEh32hHeuRl2m--QZ_MasrE",
+  authDomain: "ahmed-alfaraj-trading.firebaseapp.com",
+  projectId: "ahmed-alfaraj-trading",
+  storageBucket: "ahmed-alfaraj-trading.firebasestorage.app",
+  messagingSenderId: "628402583012",
+  appId: "1:628402583012:web:8886f8faa59dbfad3983f1"
+};
+
+firebase.initializeApp(firebaseConfig);
+const fbAuth = firebase.auth();
+const fbDb = firebase.firestore();
+// Enable offline persistence (so app works without internet)
+fbDb.enablePersistence({synchronizeTabs: true}).catch(err => {
+  console.warn('Persistence failed:', err.code);
+});
+
+const EXCHANGES = ['Binance', 'KuCoin', 'Bybit'];
+const LANG_KEY = 'ahmed_alfaraj_lang';
+const BACKUP_KEY = 'ahmed_alfaraj_last_backup';
+// LOGO_SRC will be set after app shows; use login logo for now
+const LOGO_SRC_FALLBACK = 'data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3C/svg%3E';
+let LOGO_SRC = LOGO_SRC_FALLBACK;
+
+const TR = {
+  ar: {
+    subtitle: 'سجل التداول', bal_binance: 'رصيد Binance', bal_kucoin: 'رصيد KuCoin', bal_bybit: 'رصيد Bybit', bal_total: 'الإجمالي',
+    stat_open: 'مراكز مفتوحة', stat_pnl: 'ربح محقق', stat_unr: 'ربح غير محقق', stat_roi: 'نسبة الأداء',
+    btn_new_pos: '+ مركز جديد', btn_new_tx: '+ إيداع / سحب', btn_opening: 'رصيد افتتاحي', btn_reports: '📄 التقارير',
+    btn_refresh: '🔄 تحديث الأسعار', btn_export: 'تصدير', btn_import: 'استيراد',
+    f_all_ex: 'كل المنصات', f_all_st: 'كل الحالات', status_open: 'مفتوحة', status_closed: 'مغلقة',
+    reports_select: 'اختيار التقرير', from_date: 'من تاريخ (اختياري)', to_date: 'إلى تاريخ (اختياري)',
+    rep_full: '📋 تقرير شامل', rep_closed: '💰 الصفقات المغلقة', rep_pair: '🔤 حسب الزوج', rep_exchange: '🏦 حسب المنصة',
+    rep_month: '📅 الأداء الشهري', rep_tx: '💵 الحركات المالية', rep_open: '📂 المراكز المفتوحة',
+    form_opening_title: 'الرصيد الافتتاحي', form_tx_title: 'إيداع / سحب', form_new_title: 'فتح مركز جديد',
+    form_entry_title: 'إضافة دخول (DCA)', form_close_title: 'إغلاق جزئي أو كلي',
+    field_type: 'النوع', field_exchange: 'المنصة', field_amount: 'المبلغ (USDT)', field_date: 'التاريخ', field_time: 'الوقت', field_fee: 'الرسوم USDT (اختياري)', field_notes: 'ملاحظات',
+    field_pair: 'العملة (مثال: BTC أو SOL)', field_side: 'النوع', field_qty: 'الكمية', field_price: 'السعر',
+    field_entry_price: 'سعر الدخول (USDT)', field_exit_price: 'سعر الخروج', field_close_qty: 'الكمية المغلقة',
+    type_deposit: 'إيداع', type_withdrawal: 'سحب', side_long: 'شراء / Long', side_short: 'بيع / Short',
+    side_long_s: 'شراء', side_short_s: 'بيع',
+    btn_save: 'حفظ', btn_cancel: 'إلغاء', btn_save_pos: 'حفظ المركز', btn_add: 'إضافة',
+    btn_confirm_close: 'تأكيد الإغلاق', btn_close_all_rem: 'إغلاق المتبقي كاملاً',
+    btn_print: '🖨 طباعة', btn_close_report: 'إغلاق', btn_backup_now: 'تحميل النسخة', btn_dismiss: 'إخفاء',
+    sec_positions: 'المراكز', sec_tx: 'الحركات المالية',
+    empty_positions: 'لا توجد مراكز بعد.', empty_tx: 'لا توجد حركات مالية بعد.',
+    no_closed: 'لا توجد صفقات مغلقة في هذه الفترة.', no_tx: 'لا توجد حركات مالية في هذه الفترة.', no_open: 'لا توجد مراكز مفتوحة حالياً.',
+    footer: 'البيانات محفوظة محلياً في متصفحك',
+    backup_msg_1: 'لم تأخذ نسخة احتياطية منذ', backup_msg_2: '. يُنصح بأخذ نسخة الآن.',
+    backup_start: 'بدء الاستخدام', backup_day: 'يوم', backup_days: 'أيام',
+    price_updating: '⏳ تحديث...', price_last: 'آخر تحديث', price_fail: '⚠ فشل تحديث الأسعار',
+    total_qty: 'إجمالي الكمية', avg_entry: 'متوسط الدخول', remaining: 'الكمية المتبقية', current_price: 'السعر الحالي',
+    unrealized: 'غير محقق', avg_exit: 'متوسط الخروج', partial_realized: 'محقق جزئياً', realized_pnl: 'الربح/الخسارة',
+    entries: 'الدخولات', closes: 'الإغلاقات',
+    btn_add_entry: '+ إضافة دخول', btn_do_close: 'إغلاق', btn_del_pos: 'حذف المركز', btn_del: 'حذف',
+    badge_win: '▲ رابحة', badge_loss: '▼ خاسرة',
+    confirm_del_pos: 'حذف المركز بالكامل؟', confirm_del_entry: 'حذف هذا الدخول؟',
+    confirm_del_close: 'حذف هذا الإغلاق؟', confirm_del_tx: 'حذف هذه الحركة؟',
+    confirm_import: 'سيتم استبدال كل البيانات الحالية ببيانات الملف. متابعة؟',
+    err_amount: 'يرجى إدخال مبلغ صحيح', err_pair_qty: 'يرجى إدخال العملة والكمية والسعر',
+    err_qty_price: 'كمية أو سعر غير صحيحة', err_qty_exceeds: 'الكمية أكبر من المتبقي',
+    err_no_open: 'لا توجد كمية مفتوحة', err_file: 'ملف غير صالح', err_read: 'خطأ في قراءة الملف',
+    err_save: 'تعذر الحفظ',
+    title_full: 'التقرير الشامل', title_closed: 'تقرير الصفقات المغلقة', title_pair: 'الأداء حسب الزوج',
+    title_exchange: 'الأداء حسب المنصة', title_month: 'الأداء الشهري', title_tx: 'الحركات المالية', title_open: 'المراكز المفتوحة',
+    sum_trades: 'إجمالي الصفقات', sum_net: 'صافي الربح', sum_win: 'رابحة', sum_lose: 'خاسرة', sum_rate: 'نسبة النجاح',
+    sum_pairs: 'عدد الأزواج', sum_best_pair: 'أفضل زوج', sum_worst_pair: 'أسوأ زوج',
+    sum_months: 'عدد الأشهر', sum_avg_month: 'متوسط الشهر', sum_best_month: 'أفضل شهر', sum_worst_month: 'أسوأ شهر',
+    sum_tx_count: 'عدد الحركات', sum_deposits: 'الإيداعات', sum_withdrawals: 'السحوبات', sum_net_cash: 'الصافي',
+    sum_open: 'عدد المراكز', sum_exposure: 'إجمالي التعرض', sum_total_unr: 'إجمالي الربح غير المحقق',
+    th_date: 'التاريخ', th_pair: 'الزوج', th_exchange: 'المنصة', th_side: 'النوع', th_qty: 'الكمية',
+    th_avg_entry: 'متوسط الدخول', th_exit_price: 'سعر الخروج', th_pnl: 'الربح/الخسارة', th_pct: '%',
+    th_trades: 'الصفقات', th_total_qty: 'إجمالي الكمية', th_win: 'رابحة', th_lose: 'خاسرة', th_win_rate: 'نسبة النجاح',
+    th_deposits: 'إيداعات', th_withdrawals: 'سحوبات', th_balance: 'الرصيد الحالي',
+    th_month: 'الشهر', th_amount: 'المبلغ', th_notes: 'ملاحظات', th_type: 'النوع',
+    th_open_date: 'تاريخ الفتح', th_remaining: 'الكمية المتبقية', th_current: 'السعر الحالي', th_cost: 'التكلفة', th_unr: 'غير محقق',
+    sec_report_open: 'المراكز المفتوحة', sec_report_closed: 'الصفقات المغلقة', sec_report_tx: 'الحركات المالية',
+    period: 'الفترة', start: 'البداية', all_periods: 'كل الفترات', generated: 'تاريخ الإنشاء',
+    login_subtitle: 'سجل التداول الشخصي · مزامنة آمنة عبر السحابة',
+    btn_signin: 'تسجيل الدخول بحساب Google',
+    btn_signout: 'تسجيل الخروج',
+    login_info_1: 'بياناتك تُحفظ بشكل آمن في حسابك الخاص ومُشفّرة بقواعد Firebase الصارمة. لا يستطيع أحد غيرك الوصول إليها',
+    login_info_2: 'حتى نحن',
+    sync_synced: 'متزامن',
+    sync_saving: 'جارٍ الحفظ...',
+    sync_offline: 'غير متصل',
+    sync_error: 'خطأ في المزامنة',
+    sync_connecting: 'جارٍ الاتصال...',
+    err_signin: 'فشل تسجيل الدخول',
+    confirm_signout: 'هل تريد تسجيل الخروج؟ بياناتك محفوظة في السحابة وستعود عند الدخول مرة أخرى.',
+    merge_banner: 'مراكز قابلة للدمج:',
+    merge_groups: 'مجموعة',
+    merge_positions_word: 'مراكز',
+    merge_will_become: 'ستصبح',
+    btn_merge: '🔗 دمج الآن',
+    btn_review: 'مراجعة',
+    merge_title: 'دمج المراكز المتشابهة',
+    merge_subtitle: 'تم اكتشاف مراكز في نفس الزوج/المنصة/النوع يمكن دمجها في مركز واحد مع حفظ جميع الدخولات الأصلية كسجل DCA.',
+    merge_group_label: 'مجموعة',
+    merge_to_one: 'مركز واحد',
+    merge_new_total: 'الإجمالي بعد الدمج',
+    merge_new_avg: 'متوسط الدخول الجديد',
+    merge_entries_preserved: 'كل الدخولات الأصلية بتواريخها تُحفظ كسجل DCA داخل المركز المدمج.',
+    merge_only_open: 'فقط المراكز المفتوحة بالكامل (بدون إغلاقات) يمكن دمجها.',
+    btn_confirm_merge: 'تأكيد الدمج',
+    merge_done: 'تم الدمج بنجاح',
+    total_fees: 'إجمالي الرسوم',
+    locked_badge: '🔒 مقفلة',
+    confirm_edit_closed: '⚠️ تحذير: هذه صفقة مغلقة. التعديل قد يغيّر تاريخك المحاسبي بأثر رجعي. متابعة؟',
+    confirm_del_closed: '⚠️ حذف صفقة مغلقة سيمحو التاريخ المحاسبي نهائياً. هل أنت متأكد؟',
+    closed_locked_note: '🔒 الصفقات المغلقة محمية. أي تعديل يتطلب تأكيداً مضاعفاً.',
+    backup_cloud_ok: 'بياناتك محفوظة في السحابة ✓ يُنصح بتصدير نسخة محلية كل شهر للأمان.',
+    backup_month: 'شهر'
+  },
+  en: {
+    subtitle: 'Trading Journal', bal_binance: 'Binance Balance', bal_kucoin: 'KuCoin Balance', bal_bybit: 'Bybit Balance', bal_total: 'Total',
+    stat_open: 'Open Positions', stat_pnl: 'Realized P&L', stat_unr: 'Unrealized P&L', stat_roi: 'ROI',
+    btn_new_pos: '+ New Position', btn_new_tx: '+ Deposit / Withdraw', btn_opening: 'Opening Balance', btn_reports: '📄 Reports',
+    btn_refresh: '🔄 Refresh Prices', btn_export: 'Export', btn_import: 'Import',
+    f_all_ex: 'All Exchanges', f_all_st: 'All Statuses', status_open: 'Open', status_closed: 'Closed',
+    reports_select: 'Select Report', from_date: 'From Date (optional)', to_date: 'To Date (optional)',
+    rep_full: '📋 Full Report', rep_closed: '💰 Closed Trades', rep_pair: '🔤 By Pair', rep_exchange: '🏦 By Exchange',
+    rep_month: '📅 Monthly Performance', rep_tx: '💵 Transactions', rep_open: '📂 Open Positions',
+    form_opening_title: 'Opening Balance', form_tx_title: 'Deposit / Withdraw', form_new_title: 'Open New Position',
+    form_entry_title: 'Add Entry (DCA)', form_close_title: 'Partial or Full Close',
+    field_type: 'Type', field_exchange: 'Exchange', field_amount: 'Amount (USDT)', field_date: 'Date', field_time: 'Time', field_fee: 'Fee USDT (optional)', field_notes: 'Notes',
+    field_pair: 'Symbol (e.g., BTC or SOL)', field_side: 'Side', field_qty: 'Quantity', field_price: 'Price',
+    field_entry_price: 'Entry Price (USDT)', field_exit_price: 'Exit Price', field_close_qty: 'Close Quantity',
+    type_deposit: 'Deposit', type_withdrawal: 'Withdrawal', side_long: 'Buy / Long', side_short: 'Sell / Short',
+    side_long_s: 'Long', side_short_s: 'Short',
+    btn_save: 'Save', btn_cancel: 'Cancel', btn_save_pos: 'Save Position', btn_add: 'Add',
+    btn_confirm_close: 'Confirm Close', btn_close_all_rem: 'Close All Remaining',
+    btn_print: '🖨 Print', btn_close_report: 'Close', btn_backup_now: 'Download Backup', btn_dismiss: 'Dismiss',
+    sec_positions: 'Positions', sec_tx: 'Transactions',
+    empty_positions: 'No positions yet.', empty_tx: 'No transactions yet.',
+    no_closed: 'No closed trades in this period.', no_tx: 'No transactions in this period.', no_open: 'No open positions currently.',
+    footer: 'Data stored locally in your browser',
+    backup_msg_1: "You haven't backed up in", backup_msg_2: '. A backup is recommended now.',
+    backup_start: 'since starting', backup_day: 'day', backup_days: 'days',
+    price_updating: '⏳ Updating...', price_last: 'Last update', price_fail: '⚠ Failed to refresh prices',
+    total_qty: 'Total Quantity', avg_entry: 'Avg Entry', remaining: 'Remaining', current_price: 'Current Price',
+    unrealized: 'Unrealized', avg_exit: 'Avg Exit', partial_realized: 'Partially Realized', realized_pnl: 'P&L',
+    entries: 'Entries', closes: 'Closes',
+    btn_add_entry: '+ Add Entry', btn_do_close: 'Close', btn_del_pos: 'Delete Position', btn_del: 'Delete',
+    badge_win: '▲ Winning', badge_loss: '▼ Losing',
+    confirm_del_pos: 'Delete entire position?', confirm_del_entry: 'Delete this entry?',
+    confirm_del_close: 'Delete this close?', confirm_del_tx: 'Delete this transaction?',
+    confirm_import: 'All current data will be replaced. Continue?',
+    err_amount: 'Please enter a valid amount', err_pair_qty: 'Please enter symbol, quantity and price',
+    err_qty_price: 'Invalid quantity or price', err_qty_exceeds: 'Quantity exceeds remaining',
+    err_no_open: 'No open quantity', err_file: 'Invalid file', err_read: 'Error reading file',
+    err_save: 'Failed to save',
+    title_full: 'Full Report', title_closed: 'Closed Trades Report', title_pair: 'Performance by Pair',
+    title_exchange: 'Performance by Exchange', title_month: 'Monthly Performance', title_tx: 'Transactions', title_open: 'Open Positions',
+    sum_trades: 'Total Trades', sum_net: 'Net P&L', sum_win: 'Winning', sum_lose: 'Losing', sum_rate: 'Win Rate',
+    sum_pairs: 'Number of Pairs', sum_best_pair: 'Best Pair', sum_worst_pair: 'Worst Pair',
+    sum_months: 'Number of Months', sum_avg_month: 'Avg Month', sum_best_month: 'Best Month', sum_worst_month: 'Worst Month',
+    sum_tx_count: 'Transactions', sum_deposits: 'Deposits', sum_withdrawals: 'Withdrawals', sum_net_cash: 'Net',
+    sum_open: 'Open Positions', sum_exposure: 'Total Exposure', sum_total_unr: 'Total Unrealized P&L',
+    th_date: 'Date', th_pair: 'Pair', th_exchange: 'Exchange', th_side: 'Side', th_qty: 'Quantity',
+    th_avg_entry: 'Avg Entry', th_exit_price: 'Exit Price', th_pnl: 'P&L', th_pct: '%',
+    th_trades: 'Trades', th_total_qty: 'Total Qty', th_win: 'Win', th_lose: 'Loss', th_win_rate: 'Win Rate',
+    th_deposits: 'Deposits', th_withdrawals: 'Withdrawals', th_balance: 'Balance',
+    th_month: 'Month', th_amount: 'Amount', th_notes: 'Notes', th_type: 'Type',
+    th_open_date: 'Open Date', th_remaining: 'Remaining', th_current: 'Current Price', th_cost: 'Cost', th_unr: 'Unrealized',
+    sec_report_open: 'Open Positions', sec_report_closed: 'Closed Trades', sec_report_tx: 'Transactions',
+    period: 'Period', start: 'Start', all_periods: 'All Periods', generated: 'Generated on',
+    login_subtitle: 'Personal Trading Journal · Secure Cloud Sync',
+    btn_signin: 'Sign in with Google',
+    btn_signout: 'Sign out',
+    login_info_1: 'Your data is stored securely in your own account, protected by strict Firebase security rules. No one else can access it',
+    login_info_2: 'not even us',
+    sync_synced: 'Synced',
+    sync_saving: 'Saving...',
+    sync_offline: 'Offline',
+    sync_error: 'Sync error',
+    sync_connecting: 'Connecting...',
+    err_signin: 'Sign-in failed',
+    confirm_signout: 'Sign out? Your data is saved in the cloud and will return when you sign back in.',
+    merge_banner: 'Mergeable positions:',
+    merge_groups: 'group',
+    merge_positions_word: 'positions',
+    merge_will_become: 'will become',
+    btn_merge: '🔗 Merge now',
+    btn_review: 'Review',
+    merge_title: 'Merge Similar Positions',
+    merge_subtitle: 'Found positions with same pair/exchange/side that can be merged into a single position. All original entries are preserved as DCA history.',
+    merge_group_label: 'Group',
+    merge_to_one: '1 position',
+    merge_new_total: 'Total after merge',
+    merge_new_avg: 'New avg entry',
+    merge_entries_preserved: 'All original entries with their dates are preserved as DCA history inside the merged position.',
+    merge_only_open: 'Only fully-open positions (with no closes) can be merged.',
+    btn_confirm_merge: 'Confirm Merge',
+    merge_done: 'Merge completed successfully',
+    total_fees: 'Total Fees',
+    locked_badge: '🔒 Locked',
+    confirm_edit_closed: '⚠️ Warning: this is a closed trade. Editing may retroactively change your accounting history. Continue?',
+    confirm_del_closed: '⚠️ Deleting a closed trade will erase your accounting history permanently. Are you sure?',
+    closed_locked_note: '🔒 Closed trades are protected. Any edit requires double confirmation.',
+    backup_cloud_ok: 'Your data is saved in the cloud ✓ Recommended: export a local backup monthly for safety.',
+    backup_month: 'month'
+  }
+};
+
+let lang = localStorage.getItem(LANG_KEY) || 'ar';
+const t = (k) => (TR[lang][k] !== undefined ? TR[lang][k] : k);
+
+let data = { accounts: { Binance: { opening: 0 }, KuCoin: { opening: 0 }, Bybit: { opening: 0 } }, transactions: [], positions: [] };
+let activeId = null;
+let livePrices = {};
+let priceTimer = null;
+let expandedPositions = new Set();
+const $ = (id) => document.getElementById(id);
+
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+function today() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0'); }
+function nowTime() { const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function sum(arr, f) { return arr.reduce((s,x) => s + f(x), 0); }
+function normalizeSymbol(pair) { return pair.replace(/[\/\-_\s]/g, '').toUpperCase(); }
+function cleanPairInput(v) { v = (v || '').trim().toUpperCase(); if (!v) return ''; if (v.includes('/')) return v; v = v.replace(/USDT$/, ''); return v + '/USDT'; }
+
+function applyLang() {
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  $('btn-lang').textContent = lang === 'ar' ? 'EN' : 'ع';
+  $('n-pair').placeholder = 'BTC';
+  // Update login screen texts
+  const li1 = $('login-info-1'), li2 = $('login-info-2');
+  if (li1) li1.textContent = t('login_info_1');
+  if (li2) li2.textContent = t('login_info_2');
+  // Sync login logo from main app logo
+  const logoImg = document.getElementById('logo-img');
+  if (logoImg && logoImg.src) $('login-logo').src = logoImg.src;
+  // Refresh sync status text
+  if (syncState && syncState !== 'idle') setSyncState(syncState);
+  localStorage.setItem(LANG_KEY, lang);
+  render();
+}
+$('btn-lang').addEventListener('click', () => { lang = (lang === 'ar') ? 'en' : 'ar'; applyLang(); });
+
+function computePosition(p) {
+  const totalIn = sum(p.entries, e => e.qty);
+  const totalCost = sum(p.entries, e => e.qty * e.price);
+  const avgEntry = totalIn > 0 ? totalCost / totalIn : 0;
+  const totalOut = sum(p.closes, c => c.qty);
+  const totalRev = sum(p.closes, c => c.qty * c.price);
+  const avgExit = totalOut > 0 ? totalRev / totalOut : 0;
+  const remaining = totalIn - totalOut;
+  // Fees accounting
+  const totalEntryFees = sum(p.entries, e => e.fee || 0);
+  const totalCloseFees = sum(p.closes, c => c.fee || 0);
+  // Entry fees apportioned to closed portion (LIFO-neutral weighted)
+  const closedPortionEntryFees = totalIn > 0 ? (totalOut / totalIn) * totalEntryFees : 0;
+  const totalFees = closedPortionEntryFees + totalCloseFees;
+  const realizedGross = p.side === 'LONG' ? totalOut * (avgExit - avgEntry) : totalOut * (avgEntry - avgExit);
+  const realized = realizedGross - totalFees;
+  const realizedPct = (totalOut > 0 && avgEntry > 0) ? ((p.side === 'LONG' ? (avgExit - avgEntry) : (avgEntry - avgExit)) / avgEntry * 100) : null;
+  const status = (remaining <= 1e-10 && totalIn > 0) ? 'closed' : 'open';
+  return { totalIn, totalOut, avgEntry, avgExit, remaining, realized, realizedGross, totalFees, realizedPct, status };
+}
+function unrealizedPnl(p, c) {
+  const sym = normalizeSymbol(p.pair);
+  const live = livePrices[sym];
+  if (!live || c.remaining <= 0) return { live: null, pnl: null, pct: null };
+  const pnl = p.side === 'LONG' ? c.remaining * (live - c.avgEntry) : c.remaining * (c.avgEntry - live);
+  const pct = c.avgEntry > 0 ? ((p.side === 'LONG' ? (live - c.avgEntry) : (c.avgEntry - live)) / c.avgEntry * 100) : null;
+  return { live, pnl, pct };
+}
+function realizedByExchange(ex) { return sum(data.positions.filter(p => p.exchange === ex), p => computePosition(p).realized); }
+function unrealizedByExchange(ex) { return sum(data.positions.filter(p => p.exchange === ex), p => { const c = computePosition(p); const u = unrealizedPnl(p, c); return u.pnl || 0; }); }
+function txSum(ex, type) { return sum(data.transactions.filter(t2 => t2.exchange === ex && t2.type === type), t2 => t2.amount); }
+function balance(ex) { const op = (data.accounts[ex] && data.accounts[ex].opening) || 0; return op + txSum(ex, 'deposit') - txSum(ex, 'withdrawal') + realizedByExchange(ex); }
+
+function fmtMoney(n, signed) { if (n == null || isNaN(n)) return '—'; const abs = Math.abs(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); if (signed) return (n >= 0 ? '+' : '−') + '$' + abs; return (n < 0 ? '−' : '') + '$' + abs; }
+function fmtPrice(n) { if (n == null || isNaN(n)) return '—'; return '$' + n.toLocaleString('en-US', {maximumFractionDigits: 8}); }
+function fmtQty(n) { if (n == null || isNaN(n)) return '—'; return n.toLocaleString('en-US', {maximumFractionDigits: 8}); }
+function pnlClass(n) { return n > 0 ? 'pos' : (n < 0 ? 'neg' : ''); }
+function pnlColor(n) { return n > 0 ? 'var(--success)' : (n < 0 ? 'var(--danger)' : 'var(--text-primary)'); }
+
+// ========== SYNC STATE ==========
+let currentUser = null;
+let dataUnsubscribe = null;
+let saveDebounceTimer = null;
+let syncState = 'idle';
+let initialDataLoaded = false;
+
+function setSyncState(state) {
+  syncState = state;
+  const el = $('sync-status');
+  const textEl = $('sync-text');
+  if (!el) return;
+  el.className = 'sync-status ' + state;
+  const map = {
+    synced: t('sync_synced'),
+    saving: t('sync_saving'),
+    offline: t('sync_offline'),
+    error: t('sync_error'),
+    connecting: t('sync_connecting')
+  };
+  textEl.textContent = map[state] || '—';
+}
+
+// ========== AUTH ==========
+function updateUserUI() {
+  if (!currentUser) return;
+  const user = currentUser;
+  const avatar = $('user-avatar');
+  if (user.photoURL) {
+    avatar.src = user.photoURL;
+    avatar.style.display = '';
+  } else {
+    avatar.style.display = 'none';
+  }
+  const firstName = (user.displayName || user.email || '').split(' ')[0];
+  $('user-name-short').textContent = firstName;
+  $('um-full-name').textContent = user.displayName || firstName;
+  $('um-email').textContent = user.email || '';
+}
+
+function showLogin() {
+  $('login-screen').classList.add('active');
+  $('main-app').classList.remove('active');
+  if (dataUnsubscribe) { dataUnsubscribe(); dataUnsubscribe = null; }
+  if (priceTimer) { clearInterval(priceTimer); priceTimer = null; }
+  initialDataLoaded = false;
+  // Reset data to defaults so if user signs in as someone else we don't leak
+  data = { accounts: { Binance: { opening: 0 }, KuCoin: { opening: 0 }, Bybit: { opening: 0 } }, transactions: [], positions: [] };
+  // Set login logo from main app logo if present
+  const logoImg = document.getElementById('logo-img');
+  if (logoImg && logoImg.src) $('login-logo').src = logoImg.src;
+}
+
+function showApp() {
+  $('login-screen').classList.remove('active');
+  $('main-app').classList.add('active');
+  const logoImg = document.getElementById('logo-img');
+  if (logoImg) LOGO_SRC = logoImg.src;
+  updateUserUI();
+  setSyncState('connecting');
+  startDataListener();
+  startPriceTimer();
+}
+
+async function doSignIn() {
+  const errEl = $('login-error');
+  errEl.style.display = 'none';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  try {
+    await fbAuth.signInWithPopup(provider);
+  } catch (e) {
+    console.error('Sign-in error:', e);
+    errEl.textContent = t('err_signin') + ': ' + (e.message || e.code || '');
+    errEl.style.display = 'block';
+  }
+}
+
+async function doSignOut() {
+  if (!confirm(t('confirm_signout'))) return;
+  try {
+    if (dataUnsubscribe) { dataUnsubscribe(); dataUnsubscribe = null; }
+    await fbAuth.signOut();
+  } catch (e) { console.error('Sign-out error:', e); }
+}
+
+// ========== DATA SYNC ==========
+function startDataListener() {
+  if (!currentUser) return;
+  const docRef = fbDb.collection('users').doc(currentUser.uid);
+  dataUnsubscribe = docRef.onSnapshot(
+    { includeMetadataChanges: true },
+    (snap) => {
+      if (snap.exists) {
+        const cloudData = snap.data() || {};
+        data = {
+          accounts: cloudData.accounts || {},
+          transactions: cloudData.transactions || [],
+          positions: cloudData.positions || []
+        };
+        for (const ex of EXCHANGES) {
+          if (!data.accounts[ex]) data.accounts[ex] = { opening: 0 };
+        }
+      } else if (!initialDataLoaded) {
+        // First-time user: initialize empty doc
+        data = { accounts: { Binance: { opening: 0 }, KuCoin: { opening: 0 }, Bybit: { opening: 0 } }, transactions: [], positions: [] };
+        docRef.set(data).catch(e => console.error('Initial set failed:', e));
+      }
+      initialDataLoaded = true;
+      if (snap.metadata.hasPendingWrites) setSyncState('saving');
+      else if (snap.metadata.fromCache) setSyncState('offline');
+      else setSyncState('synced');
+      applyLang();
+      render();
+      checkBackup();
+    },
+    (error) => { console.error('Firestore listener:', error); setSyncState('error'); }
+  );
+}
+
+function save() {
+  render();
+  if (!currentUser || !initialDataLoaded) return;
+  setSyncState('saving');
+  clearTimeout(saveDebounceTimer);
+  saveDebounceTimer = setTimeout(async () => {
+    try {
+      const docRef = fbDb.collection('users').doc(currentUser.uid);
+      await docRef.set(data);
+    } catch (e) {
+      console.error('Save failed:', e);
+      setSyncState('error');
+    }
+  }, 600);
+}
+
+// Online/offline detection
+window.addEventListener('online', () => { if (syncState === 'offline') setSyncState('connecting'); });
+window.addEventListener('offline', () => setSyncState('offline'));
+
+function getLastBackup() { const v = localStorage.getItem(BACKUP_KEY); return v ? new Date(v) : null; }
+function setLastBackup() { localStorage.setItem(BACKUP_KEY, new Date().toISOString()); }
+function checkBackup() {
+  const last = getLastBackup(); const banner = $('backup-banner');
+  if (data.positions.length === 0 && data.transactions.length === 0) { banner.style.display = 'none'; return; }
+  const days = last ? Math.floor((Date.now() - last.getTime()) / (24 * 60 * 60 * 1000)) : 999;
+  // Since data is backed up in Firebase cloud, only show reminder every 30 days
+  if (days >= 30) {
+    banner.style.display = 'flex';
+    $('backup-days').textContent = (days >= 999 ? t('backup_start') : (Math.floor(days / 30) + ' ' + t('backup_month')));
+  } else {
+    banner.style.display = 'none';
+  }
+}
+function doBackup() {
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob); const a = document.createElement('a');
+  a.href = url; a.download = 'ahmed_alfaraj_trading_backup_' + today() + '.json'; a.click();
+  URL.revokeObjectURL(url); setLastBackup(); checkBackup();
+}
+$('btn-backup-now').addEventListener('click', doBackup);
+$('btn-backup-dismiss').addEventListener('click', () => { $('backup-banner').style.display = 'none'; });
+
+// ========== PRICE FETCHING (Binance + CoinGecko fallback) ==========
+let coingeckoIdCache = {}; // symbol (e.g. "DEFI") -> coingecko id (e.g. "de-fi")
+
+async function fetchBinancePrices(symbols) {
+  // Try batch first (single request, fastest)
+  try {
+    const query = encodeURIComponent(JSON.stringify(symbols));
+    const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbols=' + query);
+    if (res.ok) {
+      const arr = await res.json();
+      if (Array.isArray(arr)) {
+        const prices = {};
+        for (const item of arr) prices[item.symbol] = parseFloat(item.price);
+        return { prices, failed: [] };
+      }
+    }
+    // Batch failed (likely because one symbol is invalid) — fall through to individual
+  } catch (e) { /* network error, try individual */ }
+
+  // Fall back to individual requests in parallel
+  const prices = {};
+  const failed = [];
+  await Promise.all(symbols.map(async sym => {
+    try {
+      const res = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=' + sym);
+      if (res.ok) {
+        const d = await res.json();
+        if (d && d.price) { prices[sym] = parseFloat(d.price); return; }
+      }
+      failed.push(sym);
+    } catch (e) { failed.push(sym); }
+  }));
+  return { prices, failed };
+}
+
+async function searchCoinGeckoId(symbol) {
+  if (coingeckoIdCache[symbol]) return coingeckoIdCache[symbol];
+  try {
+    const res = await fetch('https://api.coingecko.com/api/v3/search?query=' + encodeURIComponent(symbol));
+    if (!res.ok) return null;
+    const data = await res.json();
+    const matches = (data.coins || []).filter(c => c.symbol && c.symbol.toUpperCase() === symbol.toUpperCase());
+    if (matches.length === 0) return null;
+    // Pick the one with highest market cap (lowest rank number)
+    matches.sort((a, b) => (a.market_cap_rank == null ? 1e9 : a.market_cap_rank) - (b.market_cap_rank == null ? 1e9 : b.market_cap_rank));
+    coingeckoIdCache[symbol] = matches[0].id;
+    return matches[0].id;
+  } catch (e) { return null; }
+}
+
+async function fetchCoinGeckoPrices(bases) {
+  // bases = ['DEFI', 'XRP', ...]
+  const idToBase = {};
+  await Promise.all(bases.map(async b => {
+    const id = await searchCoinGeckoId(b);
+    if (id) idToBase[id] = b;
+  }));
+  const ids = Object.keys(idToBase);
+  if (ids.length === 0) return {};
+  try {
+    const url = 'https://api.coingecko.com/api/v3/simple/price?ids=' + ids.join(',') + '&vs_currencies=usd';
+    const res = await fetch(url);
+    if (!res.ok) return {};
+    const data = await res.json();
+    const prices = {};
+    for (const id of Object.keys(data)) {
+      const base = idToBase[id];
+      const p = data[id] && data[id].usd;
+      if (base && p != null) prices[base + 'USDT'] = p; // key matches normalizeSymbol
+    }
+    return prices;
+  } catch (e) { return {}; }
+}
+
+async function refreshPrices() {
+  const openPos = data.positions.filter(p => computePosition(p).status === 'open');
+  if (openPos.length === 0) { $('price-status').textContent = ''; return; }
+  const symbols = [...new Set(openPos.map(p => normalizeSymbol(p.pair)))];
+
+  $('price-status').textContent = t('price_updating');
+  $('price-status').style.color = 'var(--text-secondary)';
+
+  // Step 1: Try Binance first
+  const { prices: binancePrices, failed } = await fetchBinancePrices(symbols);
+  for (const sym of Object.keys(binancePrices)) livePrices[sym] = binancePrices[sym];
+
+  // Step 2: For failed symbols, fall back to CoinGecko
+  let coingeckoCount = 0;
+  if (failed.length > 0) {
+    const bases = failed.map(s => s.replace(/USDT$/, ''));
+    const cgPrices = await fetchCoinGeckoPrices(bases);
+    for (const sym of Object.keys(cgPrices)) {
+      livePrices[sym] = cgPrices[sym];
+      coingeckoCount++;
+    }
+  }
+
+  // Update status
+  const totalFound = Object.keys(binancePrices).length + coingeckoCount;
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+  if (totalFound === symbols.length) {
+    $('price-status').textContent = t('price_last') + ': ' + timeStr;
+    $('price-status').style.color = 'var(--text-secondary)';
+  } else if (totalFound > 0) {
+    $('price-status').textContent = t('price_last') + ': ' + timeStr + ' (' + totalFound + '/' + symbols.length + ')';
+    $('price-status').style.color = 'var(--text-secondary)';
+  } else {
+    $('price-status').textContent = t('price_fail');
+    $('price-status').style.color = 'var(--warning)';
+  }
+  render();
+}
+function startPriceTimer() { if (priceTimer) clearInterval(priceTimer); refreshPrices(); priceTimer = setInterval(refreshPrices, 30000); }
+$('btn-refresh-prices').addEventListener('click', refreshPrices);
+
+function hideForms() { ['form-opening','form-tx','form-new','form-entry','form-close','reports-panel','report-area'].forEach(id => $(id).style.display = 'none'); activeId = null; }
+
+function inRange(d, from, to) { if (from && d < from) return false; if (to && d > to) return false; return true; }
+function getClosedEvents(from, to) {
+  const events = [];
+  for (const p of data.positions) {
+    const c = computePosition(p);
+    for (const cl of p.closes) {
+      if (!inRange(cl.date, from, to)) continue;
+      const pnl = p.side === 'LONG' ? cl.qty * (cl.price - c.avgEntry) : cl.qty * (c.avgEntry - cl.price);
+      const pnlPct = c.avgEntry > 0 ? ((p.side === 'LONG' ? (cl.price - c.avgEntry) : (c.avgEntry - cl.price)) / c.avgEntry * 100) : null;
+      events.push({ date: cl.date, pair: p.pair, exchange: p.exchange, side: p.side, qty: cl.qty, price: cl.price, avgEntry: c.avgEntry, pnl, pnlPct, notes: cl.notes });
+    }
+  }
+  events.sort((a, b) => a.date.localeCompare(b.date));
+  return events;
+}
+
+
+
+function tableHTML(headers, rows) {
+  let h = '<table class="pro-table"><thead><tr>';
+  h += headers.map(x => '<th>' + x + '</th>').join('');
+  h += '</tr></thead><tbody>';
+  for (const row of rows) {
+    h += '<tr>' + row.map((c, i) => {
+      const cls = typeof c === 'object' && c.cls ? c.cls : '';
+      const val = typeof c === 'object' ? c.val : c;
+      const keyClass = i === 0 ? ' key-col' : '';
+      return '<td class="' + cls + keyClass + '">' + val + '</td>';
+    }).join('') + '</tr>';
+  }
+  return h + '</tbody></table>';
+}
+function summaryItems(items) {
+  return '<div class="kpi-grid">' +
+    items.map(it => {
+      const accent = it.color && it.color.includes('success') ? 'kpi-green' : (it.color && it.color.includes('danger') ? 'kpi-red' : 'kpi-gold');
+      const valStyle = it.color ? ' style="color:' + it.color + '"' : '';
+      return '<div class="kpi-card ' + accent + '"><div class="kpi-label">' + it.label + '</div><div class="kpi-value"' + valStyle + '>' + it.value + '</div></div>';
+    }).join('') + '</div>';
+}
+function sectionTitle(text) { return '<div class="section-title">' + text + '</div>'; }
+function emptyMsg(text) { return '<div class="empty-msg">' + text + '</div>'; }
+
+function reportClosed(from, to) {
+  const events = getClosedEvents(from, to);
+  const total = events.reduce((s,e) => s + e.pnl, 0);
+  const wins = events.filter(e => e.pnl > 0).length;
+  const losses = events.filter(e => e.pnl < 0).length;
+  let h = summaryItems([{label:t('sum_trades'), value: events.length},{label:t('sum_net'), value: fmtMoney(total, true), color: pnlColor(total)},{label:t('sum_win'), value: wins, color:'var(--success)'},{label:t('sum_lose'), value: losses, color:'var(--danger)'},{label:t('sum_rate'), value: events.length ? (wins / events.length * 100).toFixed(1) + '%' : '—'}]);
+  if (!events.length) return h + emptyMsg(t('no_closed'));
+  const rows = events.map(e => [e.date, e.pair, e.exchange, e.side === 'LONG' ? t('side_long_s') : t('side_short_s'), fmtQty(e.qty), fmtPrice(e.avgEntry), fmtPrice(e.price), {val: fmtMoney(e.pnl, true), cls: pnlClass(e.pnl)}, {val: e.pnlPct != null ? (e.pnlPct >= 0 ? '+' : '') + e.pnlPct.toFixed(2) + '%' : '—', cls: pnlClass(e.pnl)}]);
+  return h + tableHTML([t('th_date'),t('th_pair'),t('th_exchange'),t('th_side'),t('th_qty'),t('th_avg_entry'),t('th_exit_price'),t('th_pnl'),t('th_pct')], rows);
+}
+
+function reportByPair(from, to) {
+  const events = getClosedEvents(from, to);
+  if (!events.length) return emptyMsg(t('no_closed'));
+  const groups = {};
+  for (const e of events) { if (!groups[e.pair]) groups[e.pair] = { trades: 0, qty: 0, pnl: 0, wins: 0, losses: 0 }; const g = groups[e.pair]; g.trades++; g.qty += e.qty; g.pnl += e.pnl; if (e.pnl > 0) g.wins++; else if (e.pnl < 0) g.losses++; }
+  const rows = Object.entries(groups).sort((a,b) => b[1].pnl - a[1].pnl).map(([pair, g]) => [pair, g.trades, fmtQty(g.qty), {val: fmtMoney(g.pnl, true), cls: pnlClass(g.pnl)}, g.wins, g.losses, (g.trades ? (g.wins / g.trades * 100).toFixed(1) + '%' : '—')]);
+  const totalPnl = events.reduce((s,e) => s + e.pnl, 0);
+  const best = Object.entries(groups).sort((a,b) => b[1].pnl - a[1].pnl)[0];
+  const worst = Object.entries(groups).sort((a,b) => a[1].pnl - b[1].pnl)[0];
+  return summaryItems([{label:t('sum_pairs'), value: Object.keys(groups).length},{label:t('sum_net'), value: fmtMoney(totalPnl, true), color: pnlColor(totalPnl)},{label:t('sum_best_pair'), value: best ? best[0] + ' (' + fmtMoney(best[1].pnl, true) + ')' : '—'},{label:t('sum_worst_pair'), value: worst ? worst[0] + ' (' + fmtMoney(worst[1].pnl, true) + ')' : '—'}]) + tableHTML([t('th_pair'),t('th_trades'),t('th_total_qty'),t('th_pnl'),t('th_win'),t('th_lose'),t('th_win_rate')], rows);
+}
+
+function reportByExchange(from, to) {
+  const events = getClosedEvents(from, to);
+  const rows = EXCHANGES.map(ex => {
+    const exEvents = events.filter(e => e.exchange === ex);
+    const pnl = exEvents.reduce((s,e) => s + e.pnl, 0);
+    const wins = exEvents.filter(e => e.pnl > 0).length;
+    const losses = exEvents.filter(e => e.pnl < 0).length;
+    return [ex, exEvents.length, {val: fmtMoney(pnl, true), cls: pnlClass(pnl)}, wins, losses, (exEvents.length ? (wins / exEvents.length * 100).toFixed(1) + '%' : '—'), fmtMoney(txSum(ex, 'deposit')), fmtMoney(txSum(ex, 'withdrawal')), fmtMoney(balance(ex))];
+  });
+  return tableHTML([t('th_exchange'),t('th_trades'),t('th_pnl'),t('th_win'),t('th_lose'),t('th_win_rate'),t('th_deposits'),t('th_withdrawals'),t('th_balance')], rows);
+}
+
+function reportByMonth(from, to) {
+  const events = getClosedEvents(from, to);
+  if (!events.length) return emptyMsg(t('no_closed'));
+  const groups = {};
+  for (const e of events) { const m = e.date.substring(0, 7); if (!groups[m]) groups[m] = { trades: 0, pnl: 0, wins: 0, losses: 0 }; groups[m].trades++; groups[m].pnl += e.pnl; if (e.pnl > 0) groups[m].wins++; else if (e.pnl < 0) groups[m].losses++; }
+  const rows = Object.entries(groups).sort((a,b) => a[0].localeCompare(b[0])).map(([m, g]) => [m, g.trades, {val: fmtMoney(g.pnl, true), cls: pnlClass(g.pnl)}, g.wins, g.losses, (g.trades ? (g.wins / g.trades * 100).toFixed(1) + '%' : '—')]);
+  const totalPnl = events.reduce((s,e) => s + e.pnl, 0);
+  const months = Object.keys(groups).length;
+  const best = Object.entries(groups).sort((a,b) => b[1].pnl - a[1].pnl)[0];
+  const worst = Object.entries(groups).sort((a,b) => a[1].pnl - b[1].pnl)[0];
+  return summaryItems([{label:t('sum_months'), value: months},{label:t('sum_net'), value: fmtMoney(totalPnl, true), color: pnlColor(totalPnl)},{label:t('sum_avg_month'), value: fmtMoney(totalPnl / months, true), color: pnlColor(totalPnl)},{label:t('sum_best_month'), value: best ? best[0] + ' (' + fmtMoney(best[1].pnl, true) + ')' : '—'},{label:t('sum_worst_month'), value: worst ? worst[0] + ' (' + fmtMoney(worst[1].pnl, true) + ')' : '—'}]) + tableHTML([t('th_month'),t('th_trades'),t('th_pnl'),t('th_win'),t('th_lose'),t('th_win_rate')], rows);
+}
+
+function reportTx(from, to) {
+  const tx = data.transactions.filter(t2 => inRange(t2.date, from, to)).sort((a,b) => a.date.localeCompare(b.date));
+  if (!tx.length) return emptyMsg(t('no_tx'));
+  const deps = tx.filter(t2 => t2.type === 'deposit').reduce((s,t2) => s + t2.amount, 0);
+  const wds = tx.filter(t2 => t2.type === 'withdrawal').reduce((s,t2) => s + t2.amount, 0);
+  const rows = tx.map(t2 => [t2.date, t2.type === 'deposit' ? t('type_deposit') : t('type_withdrawal'), t2.exchange, {val: (t2.type === 'deposit' ? '+' : '−') + fmtMoney(t2.amount), cls: t2.type === 'deposit' ? 'pos' : 'neg'}, t2.notes || '—']);
+  return summaryItems([{label:t('sum_tx_count'), value: tx.length},{label:t('sum_deposits'), value: '+' + fmtMoney(deps), color:'var(--success)'},{label:t('sum_withdrawals'), value: '−' + fmtMoney(wds), color:'var(--danger)'},{label:t('sum_net_cash'), value: fmtMoney(deps - wds, true), color: pnlColor(deps - wds)}]) + tableHTML([t('th_date'),t('th_type'),t('th_exchange'),t('th_amount'),t('th_notes')], rows);
+}
+
+function reportOpen() {
+  const open = data.positions.filter(p => computePosition(p).status === 'open');
+  if (!open.length) return emptyMsg(t('no_open'));
+  const rows = open.map(p => {
+    const c = computePosition(p);
+    const firstDate = p.entries.length ? p.entries[0].date : '—';
+    const cost = c.remaining * c.avgEntry;
+    const u = unrealizedPnl(p, c);
+    return [firstDate, p.pair, p.exchange, p.side === 'LONG' ? t('side_long_s') : t('side_short_s'), fmtQty(c.remaining), fmtPrice(c.avgEntry), u.live ? fmtPrice(u.live) : '—', fmtMoney(cost), {val: u.pnl != null ? fmtMoney(u.pnl, true) : '—', cls: u.pnl != null ? pnlClass(u.pnl) : ''}];
+  });
+  const totalCost = open.reduce((s,p) => { const c = computePosition(p); return s + c.remaining * c.avgEntry; }, 0);
+  const totalUnr = open.reduce((s,p) => { const c = computePosition(p); const u = unrealizedPnl(p, c); return s + (u.pnl || 0); }, 0);
+  return summaryItems([{label:t('sum_open'), value: open.length},{label:t('sum_exposure'), value: fmtMoney(totalCost)},{label:t('sum_total_unr'), value: fmtMoney(totalUnr, true), color: pnlColor(totalUnr)}]) + tableHTML([t('th_open_date'),t('th_pair'),t('th_exchange'),t('th_side'),t('th_qty'),t('th_avg_entry'),t('th_current'),t('th_cost'),t('th_unr')], rows);
+}
+
+function reportFull(from, to) {
+  const bb = balance('Binance'), bk = balance('KuCoin'), by = balance('Bybit');
+  const events = getClosedEvents(from, to);
+  const totalPnl = events.reduce((s,e) => s + e.pnl, 0);
+  const totalUnr = data.positions.filter(p => computePosition(p).status === 'open').reduce((s,p) => { const c = computePosition(p); const u = unrealizedPnl(p, c); return s + (u.pnl || 0); }, 0);
+  let h = summaryItems([{label:'Binance', value: fmtMoney(bb)},{label:'KuCoin', value: fmtMoney(bk)},{label:'Bybit', value: fmtMoney(by)},{label:t('bal_total'), value: fmtMoney(bb + bk + by)},{label:t('stat_pnl'), value: fmtMoney(totalPnl, true), color: pnlColor(totalPnl)},{label:t('stat_unr'), value: fmtMoney(totalUnr, true), color: pnlColor(totalUnr)}]);
+  h += sectionTitle(t('sec_report_open')) + reportOpen();
+  h += sectionTitle(t('sec_report_closed')) + reportClosed(from, to);
+  h += sectionTitle(t('sec_report_tx')) + reportTx(from, to);
+  return h;
+}
+
+const REPORT_CSS = `
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body {
+  background: #e8e4d6;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Tahoma, Arial, sans-serif;
+  color: #1a1a2e;
+  font-size: 13px;
+  line-height: 1.55;
+  min-height: 100vh;
+}
+.toolbar {
+  position: sticky; top: 0; z-index: 100;
+  background: #ffffff;
+  border-bottom: 1px solid #d4c888;
+  padding: 12px 24px;
+  display: flex; gap: 10px; align-items: center;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.toolbar .brand-mini {
+  font-weight: 700; color: #8b6914;
+  letter-spacing: 2px; font-size: 11px;
+  text-transform: uppercase;
+  margin-inline-start: auto;
+}
+.btn-print {
+  background: linear-gradient(135deg, #c9a961 0%, #8b6914 100%);
+  color: white; border: none;
+  padding: 9px 24px; border-radius: 6px;
+  font-weight: 600; cursor: pointer; font-size: 13px;
+  box-shadow: 0 2px 6px rgba(201,169,97,0.35);
+  letter-spacing: 0.3px;
+}
+.btn-print:hover { filter: brightness(1.08); }
+.btn-close {
+  background: white; border: 1px solid #d0d0d0;
+  padding: 9px 20px; border-radius: 6px;
+  cursor: pointer; font-size: 13px; color: #555;
+}
+.btn-close:hover { background: #f5f5f5; }
+
+.page {
+  max-width: 210mm;
+  margin: 2rem auto;
+  background: #ffffff;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  display: flex; flex-direction: column;
+  min-height: calc(100vh - 5rem);
+}
+
+.page-header {
+  background: linear-gradient(135deg, #0a0a1a 0%, #1a1a38 100%);
+  color: #f5e4b0;
+  padding: 2.25rem 3rem 1.75rem;
+  position: relative;
+  border-bottom: 3px solid #c9a961;
+}
+.page-header::before {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, #8b6914, #f5e4b0, #8b6914);
+}
+.header-top {
+  display: flex; align-items: center; gap: 20px;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(201,169,97,0.25);
+}
+.header-top img {
+  height: 96px; width: 96px;
+  object-fit: cover; border-radius: 12px;
+  border: 1.5px solid rgba(201,169,97,0.55);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.45);
+}
+.brand-block { flex: 1; }
+.brand-name {
+  font-size: 28px; font-weight: 700;
+  letter-spacing: 3px; line-height: 1;
+  color: #f5e4b0;
+}
+.brand-tagline {
+  font-size: 11px; color: #b39960;
+  letter-spacing: 4px; margin-top: 8px;
+  text-transform: uppercase; font-weight: 500;
+}
+.doc-badge {
+  font-size: 10px; font-weight: 700;
+  color: #c9a961; letter-spacing: 3px;
+  padding: 5px 12px;
+  border: 1px solid #c9a961;
+  border-radius: 3px;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+.title-block {
+  padding-top: 1.25rem;
+  display: flex; justify-content: space-between;
+  align-items: flex-end; flex-wrap: wrap; gap: 1rem;
+}
+.report-title {
+  font-size: 26px; font-weight: 600;
+  color: #f5e4b0; letter-spacing: 0.5px; line-height: 1.1;
+}
+.report-meta {
+  font-size: 11px; color: #a08f60;
+  text-align: end; line-height: 1.9;
+  letter-spacing: 0.5px;
+}
+.report-meta .meta-label {
+  color: #7a6a40; text-transform: uppercase;
+  font-weight: 700; margin-inline-end: 8px;
+  letter-spacing: 1.5px;
+}
+.report-meta .meta-value { color: #d4c088; font-weight: 500; }
+
+.page-body {
+  padding: 2rem 3rem 2.5rem;
+  flex: 1;
+}
+
+.section-title {
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 3px;
+  color: #8b6914;
+  margin: 2rem 0 1rem;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #c9a961;
+  display: flex; align-items: center; gap: 10px;
+  page-break-after: avoid;
+}
+.section-title:first-child { margin-top: 0.25rem; }
+.section-title::before {
+  content: ''; width: 8px; height: 8px;
+  background: #c9a961; transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+.kpi-card {
+  padding: 0.9rem 1.1rem;
+  background: #faf6eb;
+  border: 1px solid #e8dfc0;
+  border-inline-start: 3px solid #c9a961;
+  border-radius: 3px;
+}
+.kpi-card.kpi-green { border-inline-start-color: #059862; background: #f0faf3; }
+.kpi-card.kpi-red { border-inline-start-color: #dc2626; background: #fdf3f3; }
+.kpi-label {
+  font-size: 9.5px; color: #7a6a48;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  font-weight: 700; margin-bottom: 6px;
+}
+.kpi-value {
+  font-size: 18px; font-weight: 600;
+  color: #1a1a2e; letter-spacing: 0.3px;
+  word-break: break-word;
+}
+
+.pro-table {
+  width: 100%; border-collapse: collapse;
+  margin: 0 0 1.25rem 0; font-size: 12px;
+  background: white; border: 1px solid #e8dfc0;
+  border-radius: 4px; overflow: hidden;
+  page-break-inside: auto;
+}
+.pro-table thead tr {
+  background: linear-gradient(180deg, #faf3e0 0%, #f0e6c9 100%);
+  border-bottom: 2px solid #c9a961;
+}
+.pro-table th {
+  text-align: start; padding: 10px 14px;
+  font-weight: 700; color: #5a4510;
+  text-transform: uppercase;
+  font-size: 9.5px; letter-spacing: 1.3px;
+  white-space: nowrap;
+}
+.pro-table td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #f5efdd;
+  color: #2a2a3e;
+}
+.pro-table tbody tr:nth-child(even) { background: #fdfaf2; }
+.pro-table tbody tr:last-child td { border-bottom: none; }
+.pro-table td.key-col { font-weight: 600; color: #1a1a2e; }
+.pro-table .pos { color: #0a7a3a; font-weight: 600; }
+.pro-table .neg { color: #b91c1c; font-weight: 600; }
+
+.empty-msg {
+  padding: 1.5rem; text-align: center;
+  color: #8b8680; background: #faf6eb;
+  border: 1px dashed #d4c888; border-radius: 4px;
+  font-style: italic; margin-bottom: 1rem;
+}
+
+.page-footer {
+  padding: 1.25rem 3rem;
+  border-top: 1px solid #e8dfc0;
+  background: #faf6eb;
+  color: #8b8680; font-size: 10px;
+  letter-spacing: 1.5px;
+  display: flex; justify-content: space-between;
+  align-items: center; flex-wrap: wrap; gap: 1rem;
+  text-transform: uppercase; font-weight: 500;
+}
+.confidential {
+  color: #8b6914; font-weight: 700; letter-spacing: 2.5px;
+}
+
+@media print {
+  body { background: white !important; }
+  .toolbar { display: none !important; }
+  .page { margin: 0; box-shadow: none; max-width: 100%; min-height: auto; }
+  .page-header {
+    background: #0a0a1a !important;
+    color: #f5e4b0 !important;
+  }
+  .brand-name, .report-title { color: #f5e4b0 !important; }
+  .doc-badge { border-color: #c9a961 !important; color: #c9a961 !important; }
+  .pro-table thead { background: #faf3e0 !important; }
+  .pro-table tbody tr:nth-child(even) { background: #fdfaf2 !important; }
+  .kpi-card { background: #faf6eb !important; }
+  .kpi-card.kpi-green { background: #f0faf3 !important; }
+  .kpi-card.kpi-red { background: #fdf3f3 !important; }
+  .page-footer { background: #faf6eb !important; }
+  .section-title { page-break-after: avoid; break-after: avoid; }
+  .pro-table { page-break-inside: auto; }
+  .pro-table tr { page-break-inside: avoid; }
+  @page { size: A4; margin: 0; }
+}
+`;
+
+function buildReportDocument(type) {
+  const from = $('rep-from').value || null;
+  const to = $('rep-to').value || null;
+  const body = type === 'full' ? reportFull(from, to) : type === 'closed' ? reportClosed(from, to) : type === 'pair' ? reportByPair(from, to) : type === 'exchange' ? reportByExchange(from, to) : type === 'month' ? reportByMonth(from, to) : type === 'tx' ? reportTx(from, to) : reportOpen();
+  const titleKey = 'title_' + type;
+  const periodLine = (from || to) ? ((from || t('start')) + ' — ' + (to || today())) : t('all_periods');
+  const docLabel = lang === 'ar' ? 'تقرير' : 'REPORT';
+  const confLabel = lang === 'ar' ? 'تقرير خاص · سري' : 'CONFIDENTIAL · PRIVATE REPORT';
+  const prepLabel = lang === 'ar' ? 'أُعدَّ في' : 'Prepared';
+
+  return '<!DOCTYPE html>\n' +
+'<html lang="' + lang + '" dir="' + (lang === 'ar' ? 'rtl' : 'ltr') + '">\n' +
+'<head>\n' +
+'<meta charset="UTF-8">\n' +
+'<title>' + t(titleKey) + ' · Ahmed Alfaraj</title>\n' +
+'<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ctext y=\'.9em\' font-size=\'90\'%3E📄%3C/text%3E%3C/svg%3E">\n' +
+'<style>' + REPORT_CSS + '</style>\n' +
+'</head>\n' +
+'<body>\n' +
+'<div class="toolbar">\n' +
+'  <button class="btn-print" onclick="window.print()">' + t('btn_print') + '</button>\n' +
+'  <button class="btn-close" onclick="window.close()">' + t('btn_close_report') + '</button>\n' +
+'  <div class="brand-mini">Ahmed Alfaraj Trading Portfolio</div>\n' +
+'</div>\n' +
+'<div class="page">\n' +
+'  <header class="page-header">\n' +
+'    <div class="header-top">\n' +
+'      <img src="' + LOGO_SRC + '" alt="Ahmed Alfaraj" />\n' +
+'      <div class="brand-block">\n' +
+'        <div class="brand-name">AHMED ALFARAJ</div>\n' +
+'        <div class="brand-tagline">TRADING PORTFOLIO</div>\n' +
+'      </div>\n' +
+'      <div class="doc-badge">' + docLabel + '</div>\n' +
+'    </div>\n' +
+'    <div class="title-block">\n' +
+'      <h1 class="report-title">' + t(titleKey) + '</h1>\n' +
+'      <div class="report-meta">\n' +
+'        <div><span class="meta-label">' + t('period') + '</span><span class="meta-value">' + periodLine + '</span></div>\n' +
+'        <div><span class="meta-label">' + t('generated') + '</span><span class="meta-value">' + today() + '</span></div>\n' +
+'      </div>\n' +
+'    </div>\n' +
+'  </header>\n' +
+'  <main class="page-body">' + body + '</main>\n' +
+'  <footer class="page-footer">\n' +
+'    <div class="confidential">' + confLabel + '</div>\n' +
+'    <div>' + prepLabel + ' ' + today() + ' · Ahmed Alfaraj © 2026</div>\n' +
+'  </footer>\n' +
+'</div>\n' +
+'</body>\n' +
+'</html>';
+}
+
+function openReport(type) {
+  const html = buildReportDocument(type);
+  const blob = new Blob([html], {type: 'text/html; charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, '_blank', 'width=1100,height=900,scrollbars=yes,resizable=yes');
+  if (!win) {
+    alert(lang === 'ar' ? 'يرجى السماح بالنوافذ المنبثقة لعرض التقرير' : 'Please allow popups to view the report');
+    URL.revokeObjectURL(url);
+    return;
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 120000);
+}
+
+$('btn-reports').addEventListener('click', () => { const panel = $('reports-panel'); const visible = panel.style.display === 'block'; hideForms(); if (!visible) { panel.style.display = 'block'; panel.scrollIntoView({behavior:'smooth', block:'center'}); } });
+document.querySelectorAll('#reports-panel button[data-rep]').forEach(b => { b.addEventListener('click', () => openReport(b.dataset.rep)); });
+
+$('btn-opening').addEventListener('click', () => { hideForms(); $('op-binance').value = data.accounts.Binance.opening || ''; $('op-kucoin').value = data.accounts.KuCoin.opening || ''; $('op-bybit').value = data.accounts.Bybit.opening || ''; $('form-opening').style.display = 'block'; $('form-opening').scrollIntoView({behavior:'smooth', block:'center'}); });
+$('btn-op-cancel').addEventListener('click', hideForms);
+$('btn-op-save').addEventListener('click', () => { data.accounts.Binance.opening = parseFloat($('op-binance').value) || 0; data.accounts.KuCoin.opening = parseFloat($('op-kucoin').value) || 0; data.accounts.Bybit.opening = parseFloat($('op-bybit').value) || 0; hideForms(); save(); });
+
+$('btn-new-tx').addEventListener('click', () => { hideForms(); $('tx-type').value='deposit'; $('tx-exchange').value='Binance'; $('tx-amount').value=''; $('tx-date').value=today(); $('tx-time').value=nowTime(); $('tx-notes').value=''; $('form-tx').style.display='block'; $('form-tx').scrollIntoView({behavior:'smooth', block:'center'}); });
+$('btn-tx-cancel').addEventListener('click', hideForms);
+$('btn-tx-save').addEventListener('click', () => { const amt = parseFloat($('tx-amount').value); if (!(amt > 0)) { alert(t('err_amount')); return; } data.transactions.unshift({ id: uid(), type: $('tx-type').value, exchange: $('tx-exchange').value, amount: amt, date: $('tx-date').value || today(), time: $('tx-time').value || nowTime(), notes: $('tx-notes').value.trim() }); hideForms(); save(); });
+
+$('btn-new-pos').addEventListener('click', () => { hideForms(); $('n-exchange').value='Binance'; $('n-pair').value=''; $('n-side').value='LONG'; $('n-date').value=today(); $('n-time').value=nowTime(); $('n-qty').value=''; $('n-price').value=''; $('n-fee').value=''; $('n-notes').value=''; $('form-new').style.display='block'; $('form-new').scrollIntoView({behavior:'smooth', block:'center'}); });
+$('btn-new-cancel').addEventListener('click', hideForms);
+$('btn-new-save').addEventListener('click', () => { const pair = cleanPairInput($('n-pair').value); const qty = parseFloat($('n-qty').value); const price = parseFloat($('n-price').value); const fee = parseFloat($('n-fee').value) || 0; if (!pair || !(qty > 0) || !(price > 0)) { alert(t('err_pair_qty')); return; } data.positions.unshift({ id: uid(), exchange: $('n-exchange').value, pair, side: $('n-side').value, createdAt: Date.now(), entries: [{ id: uid(), qty, price, fee, date: $('n-date').value || today(), time: $('n-time').value || nowTime(), notes: $('n-notes').value.trim() }], closes: [] }); hideForms(); save(); refreshPrices(); });
+
+function openEntryForm(id) { const p = data.positions.find(x => x.id === id); if (!p) return; hideForms(); activeId = id; $('entry-title').textContent = p.pair + ' · ' + p.exchange + ' · ' + (p.side === 'LONG' ? t('side_long_s') : t('side_short_s')); $('e-qty').value=''; $('e-price').value=''; $('e-fee').value=''; $('e-date').value=today(); $('e-time').value=nowTime(); $('e-notes').value=''; $('form-entry').style.display='block'; $('form-entry').scrollIntoView({behavior:'smooth', block:'center'}); }
+$('btn-entry-cancel').addEventListener('click', hideForms);
+$('btn-entry-save').addEventListener('click', () => { const p = data.positions.find(x => x.id === activeId); if (!p) return; const qty = parseFloat($('e-qty').value); const price = parseFloat($('e-price').value); const fee = parseFloat($('e-fee').value) || 0; if (!(qty > 0) || !(price > 0)) { alert(t('err_qty_price')); return; } p.entries.push({ id: uid(), qty, price, fee, date: $('e-date').value || today(), time: $('e-time').value || nowTime(), notes: $('e-notes').value.trim() }); hideForms(); save(); });
+
+function openCloseForm(id) { const p = data.positions.find(x => x.id === id); if (!p) return; const c = computePosition(p); if (c.remaining <= 0) { alert(t('err_no_open')); return; } hideForms(); activeId = id; $('close-title').textContent = p.pair + ' · ' + p.exchange + ' · ' + (p.side === 'LONG' ? t('side_long_s') : t('side_short_s')) + ' · ' + t('remaining') + ': ' + fmtQty(c.remaining) + ' · ' + t('avg_entry') + ': ' + fmtPrice(c.avgEntry); $('x-qty').value=''; $('x-price').value=''; $('x-fee').value=''; $('x-date').value=today(); $('x-time').value=nowTime(); $('x-notes').value=''; $('form-close').style.display='block'; $('form-close').scrollIntoView({behavior:'smooth', block:'center'}); }
+$('btn-close-cancel').addEventListener('click', hideForms);
+$('btn-close-all').addEventListener('click', () => { const p = data.positions.find(x => x.id === activeId); if (!p) return; $('x-qty').value = computePosition(p).remaining; });
+$('btn-close-save').addEventListener('click', () => { const p = data.positions.find(x => x.id === activeId); if (!p) return; const c = computePosition(p); const qty = parseFloat($('x-qty').value); const price = parseFloat($('x-price').value); const fee = parseFloat($('x-fee').value) || 0; if (!(qty > 0) || !(price > 0)) { alert(t('err_qty_price')); return; } if (qty > c.remaining + 1e-9) { alert(t('err_qty_exceeds') + ' (' + fmtQty(c.remaining) + ')'); return; } p.closes.push({ id: uid(), qty, price, fee, date: $('x-date').value || today(), time: $('x-time').value || nowTime(), notes: $('x-notes').value.trim() }); hideForms(); save(); });
+
+$('btn-export').addEventListener('click', doBackup);
+$('btn-import').addEventListener('click', () => $('import-file').click());
+$('import-file').addEventListener('change', (e) => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!parsed.accounts || !parsed.positions) throw new Error(t('err_file'));
+      if (confirm(t('confirm_import'))) {
+        data = parsed;
+        for (const ex of EXCHANGES) { if (!data.accounts[ex]) data.accounts[ex] = { opening: 0 }; }
+        save(); refreshPrices();
+      }
+    } catch (err) { alert(t('err_read') + ': ' + err.message); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+$('filter-exchange').addEventListener('change', render);
+$('filter-status').addEventListener('change', render);
+
+let txOpenPanel = true;
+$('tx-toggle').addEventListener('click', () => { txOpenPanel = !txOpenPanel; $('tx-wrap').style.display = txOpenPanel ? 'block' : 'none'; $('tx-caret').textContent = txOpenPanel ? '▼' : '▶'; });
+
+function render() {
+  const balances = {}; const unrs = {};
+  for (const ex of EXCHANGES) { balances[ex] = balance(ex); unrs[ex] = unrealizedByExchange(ex); }
+  const setBal = (id, val, ex) => {
+    $('bal-' + id).textContent = fmtMoney(val);
+    $('bal-' + id).style.color = val < 0 ? 'var(--danger)' : 'var(--text-primary)';
+    $('bal-' + id + '-sub').textContent = (lang === 'ar' ? 'افتتاحي' : 'Opening') + ': ' + fmtMoney(data.accounts[ex].opening) + ' · ' + (lang === 'ar' ? 'غير محقق' : 'Unr') + ': ' + fmtMoney(unrs[ex], true);
+  };
+  setBal('binance', balances.Binance, 'Binance');
+  setBal('kucoin', balances.KuCoin, 'KuCoin');
+  setBal('bybit', balances.Bybit, 'Bybit');
+  const totalBal = balances.Binance + balances.KuCoin + balances.Bybit;
+  const totalUnr = unrs.Binance + unrs.KuCoin + unrs.Bybit;
+  const totalWithUnr = totalBal + totalUnr;
+  $('bal-total').textContent = fmtMoney(totalWithUnr);
+  $('bal-total').style.color = totalWithUnr < 0 ? 'var(--danger)' : 'var(--text-primary)';
+  $('bal-total-sub').textContent = (lang === 'ar' ? 'نقدي' : 'Cash') + ': ' + fmtMoney(totalBal) + ' · ' + (lang === 'ar' ? 'غير محقق' : 'Unr') + ': ' + fmtMoney(totalUnr, true);
+
+  const openCount = data.positions.filter(p => computePosition(p).status === 'open').length;
+  const pnl = sum(data.positions, p => computePosition(p).realized);
+  $('stat-open').textContent = openCount;
+  $('stat-pnl').textContent = fmtMoney(pnl, true); $('stat-pnl').style.color = pnlColor(pnl);
+  $('stat-unr').textContent = fmtMoney(totalUnr, true); $('stat-unr').style.color = pnlColor(totalUnr);
+  const openingTotal = EXCHANGES.reduce((s, ex) => s + data.accounts[ex].opening, 0);
+  const netTx = EXCHANGES.reduce((s, ex) => s + txSum(ex, 'deposit') - txSum(ex, 'withdrawal'), 0);
+  const capital = openingTotal + netTx;
+  const roi = capital > 0 ? (pnl / capital * 100) : 0;
+  $('stat-roi-val').textContent = (roi >= 0 ? '+' : '') + roi.toFixed(2) + '%';
+  $('stat-roi-val').style.color = pnlColor(roi);
+
+  const fex = $('filter-exchange').value, fst = $('filter-status').value;
+  let list = data.positions.slice();
+  if (fex !== 'all') list = list.filter(p => p.exchange === fex);
+  const openList = list.filter(p => computePosition(p).status === 'open');
+  const closedList = list.filter(p => computePosition(p).status === 'closed');
+  const posWrap = $('positions-list');
+  posWrap.innerHTML = '';
+  const showOpen = (fst === 'all' || fst === 'open') && openList.length > 0;
+  const showClosed = (fst === 'all' || fst === 'closed') && closedList.length > 0;
+  if (showOpen) posWrap.appendChild(renderPositionsGroup(openList, 'open'));
+  if (showClosed) posWrap.appendChild(renderPositionsGroup(closedList, 'closed'));
+  $('empty-positions').style.display = (!showOpen && !showClosed) ? 'block' : 'none';
+  updateMergeBanner();
+
+  let tx = data.transactions.slice();
+  if (fex !== 'all') tx = tx.filter(t2 => t2.exchange === fex);
+  const txWrap = $('tx-list'); txWrap.innerHTML = '';
+  $('tx-count').textContent = tx.length ? '(' + tx.length + ')' : '';
+  $('empty-tx').style.display = tx.length === 0 ? 'block' : 'none';
+  tx.forEach(t2 => txWrap.appendChild(renderTx(t2)));
+}
+
+function togglePosExpand(id) {
+  if (expandedPositions.has(id)) expandedPositions.delete(id);
+  else expandedPositions.add(id);
+  render();
+}
+
+// ========== MERGE LOGIC ==========
+function findMergeableGroups() {
+  const groups = new Map();
+  for (const p of data.positions) {
+    const c = computePosition(p);
+    // Only merge fully-open positions with NO closes (data integrity)
+    if (c.totalOut > 0 || p.closes.length > 0) continue;
+    const key = p.pair + '|' + p.exchange + '|' + p.side;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(p);
+  }
+  const result = [];
+  for (const [key, positions] of groups) {
+    if (positions.length >= 2) {
+      const [pair, exchange, side] = key.split('|');
+      const totalQty = sum(positions, p => sum(p.entries, e => e.qty));
+      const totalCost = sum(positions, p => sum(p.entries, e => e.qty * e.price));
+      const avgEntry = totalQty > 0 ? totalCost / totalQty : 0;
+      result.push({ key, pair, exchange, side, positions, totalQty, avgEntry });
+    }
+  }
+  return result;
+}
+
+function updateMergeBanner() {
+  const groups = findMergeableGroups();
+  const banner = $('merge-banner');
+  if (groups.length === 0) {
+    banner.classList.remove('active');
+    return;
+  }
+  const totalPositions = groups.reduce((s, g) => s + g.positions.length, 0);
+  banner.classList.add('active');
+  $('merge-banner-text').innerHTML =
+    '<strong>' + t('merge_banner') + '</strong> ' +
+    groups.length + ' ' + t('merge_groups') + ' · ' +
+    totalPositions + ' ' + t('merge_positions_word') + ' ' + t('merge_will_become') + ' ' + groups.length;
+  $('btn-open-merge').textContent = t('btn_review');
+}
+
+function openMergeModal() {
+  const groups = findMergeableGroups();
+  if (groups.length === 0) return;
+  const container = $('merge-groups-container');
+  container.innerHTML = '';
+  for (const g of groups) {
+    const sideTxt = g.side === 'LONG' ? t('side_long_s') : t('side_short_s');
+    const sideCls = g.side === 'LONG' ? 'long' : 'short';
+    let html = '<div class="merge-group">';
+    html += '<div class="merge-group-header">';
+    html += '<span class="merge-group-pair">' + g.pair + '</span>';
+    html += '<span class="badge badge-exchange ' + g.exchange.toLowerCase() + '">' + g.exchange + '</span>';
+    html += '<span class="side-pill ' + sideCls + '">' + sideTxt + '</span>';
+    html += '<span class="merge-group-summary"><strong>' + g.positions.length + '</strong> ' + t('merge_positions_word') + ' → <strong>1</strong></span>';
+    html += '</div>';
+    html += '<div class="merge-stats">';
+    html += '<div><div class="merge-stat-label">' + t('merge_new_total') + '</div><div class="merge-stat-value">' + fmtQty(g.totalQty) + '</div></div>';
+    html += '<div><div class="merge-stat-label">' + t('merge_new_avg') + '</div><div class="merge-stat-value">' + fmtPrice(g.avgEntry) + '</div></div>';
+    html += '</div>';
+    html += '<div class="merge-details">';
+    for (const p of g.positions) {
+      const c = computePosition(p);
+      html += '<div class="merge-details-item">• ' + fmtQty(c.totalIn) + ' × ' + fmtPrice(c.avgEntry) + '</div>';
+    }
+    html += '</div>';
+    html += '</div>';
+    container.insertAdjacentHTML('beforeend', html);
+  }
+  $('merge-modal').classList.add('active');
+}
+
+function doMerge() {
+  const groups = findMergeableGroups();
+  for (const g of groups) {
+    const ids = g.positions.map(p => p.id);
+    const allEntries = [];
+    for (const p of g.positions) {
+      for (const e of p.entries) {
+        allEntries.push({ ...e });
+      }
+    }
+    allEntries.sort((a, b) => a.date.localeCompare(b.date));
+    const oldestPos = g.positions.slice().sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0))[0];
+    const mergedPos = {
+      id: oldestPos.id,
+      exchange: g.exchange,
+      pair: g.pair,
+      side: g.side,
+      createdAt: oldestPos.createdAt,
+      entries: allEntries,
+      closes: []
+    };
+    for (const id of ids) expandedPositions.delete(id);
+    data.positions = data.positions.filter(p => !ids.includes(p.id));
+    data.positions.unshift(mergedPos);
+  }
+  $('merge-modal').classList.remove('active');
+  save();
+}
+
+$('btn-open-merge').addEventListener('click', openMergeModal);
+$('btn-cancel-merge').addEventListener('click', () => $('merge-modal').classList.remove('active'));
+$('btn-do-merge').addEventListener('click', doMerge);
+$('merge-modal').addEventListener('click', (e) => { if (e.target === $('merge-modal')) $('merge-modal').classList.remove('active'); });
+
+function renderPositionsGroup(positions, type) {
+  const isOpen = type === 'open';
+  let totalPnl = 0, totalExposure = 0;
+  for (const p of positions) {
+    const c = computePosition(p);
+    if (isOpen) {
+      const u = unrealizedPnl(p, c);
+      totalPnl += u.pnl || 0;
+      totalExposure += c.remaining * c.avgEntry;
+    } else {
+      totalPnl += c.realized;
+    }
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'pos-group';
+
+  const header = document.createElement('div');
+  header.className = 'pos-group-header';
+  const titleIcon = isOpen ? '📂' : '✅';
+  const titleTxt = isOpen ? t('sec_report_open') : t('sec_report_closed');
+  const pnlLabel = isOpen ? t('sum_total_unr') : t('stat_pnl');
+  let statsHTML = '';
+  if (isOpen) statsHTML += '<div><span class="stat-label">' + t('sum_exposure') + ':</span><strong>' + fmtMoney(totalExposure) + '</strong></div>';
+  statsHTML += '<div><span class="stat-label">' + pnlLabel + ':</span><strong style="color:' + pnlColor(totalPnl) + ';">' + fmtMoney(totalPnl, true) + '</strong></div>';
+  header.innerHTML = '<div class="pos-group-title">' + titleIcon + ' ' + titleTxt + ' <span class="count-pill">' + positions.length + '</span></div><div class="pos-group-stats">' + statsHTML + '</div>';
+  wrap.appendChild(header);
+
+  const tableWrap = document.createElement('div');
+  tableWrap.style.overflowX = 'auto';
+  const table = document.createElement('table');
+  table.className = 'pos-table';
+
+  const thead = document.createElement('thead');
+  const headers = isOpen
+    ? [t('th_pair'), t('th_exchange'), t('th_side'), t('th_remaining'), t('th_avg_entry'), t('th_current'), t('th_unr'), '%']
+    : [t('th_pair'), t('th_exchange'), t('th_side'), t('th_qty'), t('th_avg_entry'), t('th_exit_price'), t('th_pnl'), '%'];
+  thead.innerHTML = '<tr>' + headers.map(h => '<th>' + h + '</th>').join('') + '</tr>';
+  table.appendChild(thead);
+
+  const tbody = document.createElement('tbody');
+  for (const p of positions) {
+    const c = computePosition(p);
+    const row = document.createElement('tr');
+    row.className = 'pos-row';
+    const isExpanded = expandedPositions.has(p.id);
+    if (isExpanded) row.classList.add('expanded');
+
+    const caret = isExpanded ? '▼' : '▶';
+    const sideTxt = p.side === 'LONG' ? t('side_long_s') : t('side_short_s');
+    const sideClass = p.side === 'LONG' ? 'long' : 'short';
+
+    if (isOpen) {
+      const u = unrealizedPnl(p, c);
+      if (u.pnl != null) row.classList.add(u.pnl > 0 ? 'win' : (u.pnl < 0 ? 'loss' : ''));
+      const pnlCls = u.pnl > 0 ? 'pos-amt' : (u.pnl < 0 ? 'neg-amt' : '');
+      row.innerHTML =
+        '<td class="cell-pair"><span class="caret">' + caret + '</span><strong>' + p.pair + '</strong></td>' +
+        '<td data-label="' + t('th_exchange') + '"><span class="badge badge-exchange ' + p.exchange.toLowerCase() + '">' + p.exchange + '</span></td>' +
+        '<td data-label="' + t('th_side') + '"><span class="side-pill ' + sideClass + '">' + sideTxt + '</span></td>' +
+        '<td data-label="' + t('th_remaining') + '" class="num">' + fmtQty(c.remaining) + '</td>' +
+        '<td data-label="' + t('th_avg_entry') + '" class="num">' + fmtPrice(c.avgEntry) + '</td>' +
+        '<td data-label="' + t('th_current') + '" class="num">' + (u.live ? '<span class="live-dot"></span>' + fmtPrice(u.live) : '—') + '</td>' +
+        '<td data-label="' + t('th_unr') + '" class="num ' + pnlCls + '">' + (u.pnl != null ? fmtMoney(u.pnl, true) : '—') + '</td>' +
+        '<td data-label="%" class="num ' + pnlCls + '">' + (u.pct != null ? (u.pct >= 0 ? '+' : '') + u.pct.toFixed(2) + '%' : '—') + '</td>';
+    } else {
+      const pnlCls = c.realized > 0 ? 'pos-amt' : (c.realized < 0 ? 'neg-amt' : '');
+      row.innerHTML =
+        '<td class="cell-pair"><span class="caret">' + caret + '</span><strong>' + p.pair + '</strong> <span style="color:var(--gold-dark); font-size:11px; margin-inline-start:6px;" title="' + t('closed_locked_note') + '">🔒</span></td>' +
+        '<td data-label="' + t('th_exchange') + '"><span class="badge badge-exchange ' + p.exchange.toLowerCase() + '">' + p.exchange + '</span></td>' +
+        '<td data-label="' + t('th_side') + '"><span class="side-pill ' + sideClass + '">' + sideTxt + '</span></td>' +
+        '<td data-label="' + t('th_qty') + '" class="num">' + fmtQty(c.totalOut) + '</td>' +
+        '<td data-label="' + t('th_avg_entry') + '" class="num">' + fmtPrice(c.avgEntry) + '</td>' +
+        '<td data-label="' + t('th_exit_price') + '" class="num">' + fmtPrice(c.avgExit) + '</td>' +
+        '<td data-label="' + t('th_pnl') + '" class="num ' + pnlCls + '">' + fmtMoney(c.realized, true) + '</td>' +
+        '<td data-label="%" class="num ' + pnlCls + '">' + (c.realizedPct != null ? (c.realizedPct >= 0 ? '+' : '') + c.realizedPct.toFixed(2) + '%' : '—') + '</td>';
+    }
+    row.addEventListener('click', (e) => {
+      if (e.target.tagName === 'BUTTON') return;
+      togglePosExpand(p.id);
+    });
+    tbody.appendChild(row);
+
+    if (isExpanded) {
+      const detailRow = document.createElement('tr');
+      detailRow.className = 'pos-detail-row';
+      const detailCell = document.createElement('td');
+      detailCell.colSpan = headers.length;
+      detailCell.appendChild(renderPositionDetail(p));
+      detailRow.appendChild(detailCell);
+      tbody.appendChild(detailRow);
+    }
+  }
+
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  wrap.appendChild(tableWrap);
+  return wrap;
+}
+
+function renderPositionDetail(p) {
+  const c = computePosition(p);
+  const container = document.createElement('div');
+  container.className = 'pos-detail';
+  const isClosed = c.status === 'closed';
+
+  let html = '';
+  // Lock note if closed
+  if (isClosed) {
+    html += '<div style="padding:8px 12px; background:var(--warning-bg); color:var(--warning); border-radius:6px; font-size:11.5px; margin-bottom:10px; border:1px solid var(--warning);">' + t('closed_locked_note') + '</div>';
+  }
+
+  html += '<div class="detail-grid">';
+  html += '<div class="detail-col"><div class="detail-col-title">' + t('entries') + ' (' + p.entries.length + ')</div>';
+  for (const e of p.entries) {
+    const dateTime = e.date + (e.time ? ' ' + e.time : '');
+    const feeInfo = (e.fee && e.fee > 0) ? ' · ' + t('field_fee').split(' ')[0] + ' ' + fmtMoney(e.fee) : '';
+    html += '<div class="detail-item">' +
+      '<span class="dt-date">' + dateTime + '</span>' +
+      '<span class="dt-main">' + fmtQty(e.qty) + ' @ ' + fmtPrice(e.price) + feeInfo + '</span>' +
+      (e.notes ? '<span class="dt-note">' + e.notes + '</span>' : '<div style="flex:1;"></div>') +
+      '<button class="dt-del" data-act="del-entry" data-pid="' + p.id + '" data-eid="' + e.id + '" title="' + t('btn_del') + '">✕</button>' +
+      '</div>';
+  }
+  html += '</div>';
+
+  if (p.closes.length) {
+    html += '<div class="detail-col"><div class="detail-col-title">' + t('closes') + ' (' + p.closes.length + ')</div>';
+    for (const x of p.closes) {
+      const dateTime = x.date + (x.time ? ' ' + x.time : '');
+      const feeInfo = (x.fee && x.fee > 0) ? ' · ' + t('field_fee').split(' ')[0] + ' ' + fmtMoney(x.fee) : '';
+      html += '<div class="detail-item">' +
+        '<span class="dt-date">' + dateTime + '</span>' +
+        '<span class="dt-main">' + fmtQty(x.qty) + ' @ ' + fmtPrice(x.price) + feeInfo + '</span>' +
+        (x.notes ? '<span class="dt-note">' + x.notes + '</span>' : '<div style="flex:1;"></div>') +
+        '<button class="dt-del" data-act="del-close" data-pid="' + p.id + '" data-cid="' + x.id + '" title="' + t('btn_del') + '">✕</button>' +
+        '</div>';
+    }
+    html += '</div>';
+  } else {
+    html += '<div class="detail-col" style="display:flex; align-items:center; justify-content:center; color:var(--text-muted); font-style:italic; font-size:12px;">' + (lang === 'ar' ? 'لا توجد إغلاقات بعد' : 'No closes yet') + '</div>';
+  }
+  html += '</div>';
+
+  // Fees summary
+  if (c.totalFees > 0) {
+    html += '<div style="padding:8px 12px; background:var(--bg-subtle); border-radius:6px; font-size:12px; margin-bottom:10px; color:var(--text-secondary);">' + t('total_fees') + ': <strong style="color:var(--danger);">' + fmtMoney(c.totalFees) + '</strong></div>';
+  }
+
+  html += '<div class="detail-actions">';
+  if (c.status === 'open') {
+    html += '<button data-act="entry" data-pid="' + p.id + '">' + t('btn_add_entry') + '</button>';
+    html += '<button data-act="close" data-pid="' + p.id + '" class="btn-primary">' + t('btn_do_close') + '</button>';
+  }
+  html += '<button data-act="del-pos" data-pid="' + p.id + '" class="btn-danger">' + t('btn_del_pos') + '</button>';
+  html += '</div>';
+
+  container.innerHTML = html;
+  container.querySelectorAll('button[data-act]').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const act = b.dataset.act, pid = b.dataset.pid;
+      const currentPos = data.positions.find(x => x.id === pid);
+      const isCurrentClosed = currentPos && computePosition(currentPos).status === 'closed';
+      if (act === 'entry') openEntryForm(pid);
+      else if (act === 'close') openCloseForm(pid);
+      else if (act === 'del-pos') {
+        const msg = isCurrentClosed ? t('confirm_del_closed') : t('confirm_del_pos');
+        if (confirm(msg)) {
+          if (isCurrentClosed && !confirm(lang === 'ar' ? 'تأكيد أخير: حذف نهائي؟' : 'Final confirmation: delete permanently?')) return;
+          data.positions = data.positions.filter(x => x.id !== pid); expandedPositions.delete(pid); save();
+        }
+      }
+      else if (act === 'del-entry') {
+        const msg = isCurrentClosed ? t('confirm_edit_closed') : t('confirm_del_entry');
+        if (confirm(msg)) { const p2 = data.positions.find(x => x.id === pid); if (p2) { p2.entries = p2.entries.filter(en => en.id !== b.dataset.eid); save(); } }
+      }
+      else if (act === 'del-close') {
+        const msg = isCurrentClosed ? t('confirm_edit_closed') : t('confirm_del_close');
+        if (confirm(msg)) { const p2 = data.positions.find(x => x.id === pid); if (p2) { p2.closes = p2.closes.filter(en => en.id !== b.dataset.cid); save(); } }
+      }
+    });
+  });
+  return container;
+}
+
+function renderTx(t2) {
+  const row = document.createElement('div');
+  const isDep = t2.type === 'deposit';
+  const color = isDep ? 'var(--success)' : 'var(--danger)';
+  row.className = 'tx-row';
+  const dateTime = t2.date + (t2.time ? ' ' + t2.time : '');
+  row.innerHTML = '<span class="badge" style="background:' + (isDep ? 'var(--success-bg)' : 'var(--danger-bg)') + '; color:' + color + '; font-weight:600;">' + (isDep ? t('type_deposit') : t('type_withdrawal')) + '</span><span class="badge badge-exchange ' + t2.exchange.toLowerCase() + '">' + t2.exchange + '</span><span style="font-weight:600; color:' + color + ';">' + (isDep ? '+' : '−') + fmtMoney(t2.amount) + '</span><span style="color:var(--text-muted);">' + dateTime + '</span>' + (t2.notes ? '<span style="color:var(--text-muted);">' + t2.notes + '</span>' : '') + '<div style="flex:1;"></div><button data-tid="' + t2.id + '" style="font-size:11px; padding:2px 8px; color:var(--danger); min-height:unset;">' + t('btn_del') + '</button>';
+  row.querySelector('button').addEventListener('click', () => { if (confirm(t('confirm_del_tx'))) { data.transactions = data.transactions.filter(x => x.id !== t2.id); save(); } });
+  return row;
+}
+
+// ========== UI EVENT HANDLERS (Auth) ==========
+$('btn-signin').addEventListener('click', doSignIn);
+$('btn-signout').addEventListener('click', doSignOut);
+$('btn-user').addEventListener('click', (e) => {
+  e.stopPropagation();
+  $('user-menu').classList.toggle('active');
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#btn-user') && !e.target.closest('#user-menu')) {
+    $('user-menu').classList.remove('active');
+  }
+});
+
+// Update login screen text when language changes
+// (applyLang already handles login-info-1, login-info-2, login-logo)
+
+// ========== INIT ==========
+// Register service worker for offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(e => console.log('SW registration failed:', e));
+  });
+}
+
+// Show login by default while auth resolves
+$('login-screen').classList.add('active');
+applyLang();
+
+// Auth state observer — the main entry point
+fbAuth.onAuthStateChanged((user) => {
+  if (user) {
+    currentUser = user;
+    showApp();
+  } else {
+    currentUser = null;
+    showLogin();
+  }
+});
+</script>
+</body>
+</html>
